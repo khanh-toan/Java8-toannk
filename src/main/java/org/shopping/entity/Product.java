@@ -1,10 +1,9 @@
-package org.ttkd6.entity;
+package org.shopping.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.aspectj.weaver.ast.Or;
 
 import java.util.List;
 
@@ -13,11 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "products")
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID")
-    private Integer id;
+@AttributeOverride(name = "id", column = @Column(name = "id"
+        , nullable = false, columnDefinition = "BIGINT UNSIGNED"))
+public class Product extends BaseEntity{
+    private static final long serialVersionUID = 1L;
 
     @Column(name = "CODE")
     private String code;

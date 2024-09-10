@@ -1,4 +1,4 @@
-package org.ttkd6.entity;
+package org.shopping.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "account")
+@AttributeOverride(name = "id", column = @Column(name = "id"
+        , nullable = false, columnDefinition = "BIGINT UNSIGNED"))
 public class Account extends BaseEntity{
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

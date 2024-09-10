@@ -1,4 +1,4 @@
-package org.ttkd6.config;
+package org.shopping.config;
 
 public class WebSecurityConfig{
 

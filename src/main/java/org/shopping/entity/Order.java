@@ -1,4 +1,4 @@
-package org.ttkd6.entity;
+package org.shopping.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,12 +11,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "orders")
-public class Order {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID")
-    private Integer id;
+@Table(name = "orders",
+uniqueConstraints = { @UniqueConstraint(columnNames = "ORDER_NUM")})
+@AttributeOverride(name = "id", column = @Column(name = "id"
+        , nullable = false, columnDefinition = "BIGINT UNSIGNED"))
+public class Order extends BaseEntity{
+    private static final long serialVersionUID = 1L;
 
     @Column(name = "CUSTOMER_ADDRESS")
     private String address;

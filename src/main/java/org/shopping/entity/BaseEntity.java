@@ -1,4 +1,4 @@
-package org.ttkd6.entity;
+package org.shopping.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

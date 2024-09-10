@@ -1,4 +1,4 @@
-package org.ttkd6;
+package org.shopping;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

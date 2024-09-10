@@ -1,1 +1,11 @@
-spring.application.name=toan
+server:
+  port: 8080
+  servlet:
+    context-path: /toan
+
+
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/mydatabase"
+    username: root
+    password: 123456
