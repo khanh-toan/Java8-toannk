@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+
 @Component
 public class ProductFormValidator implements Validator {
     @Autowired
@@ -21,7 +22,7 @@ public class ProductFormValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         ProductForm productForm = (ProductForm) target;
-// Kiểm tra các trường (field) của ProductForm.
+        // Kiểm tra các trường (field) của ProductForm.
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "code", "NotEmpty.productForm.code");
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "NotEmpty.productForm.name");
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "price", "NotEmpty.productForm.price");

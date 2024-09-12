@@ -17,7 +17,7 @@ public class PaginationResult<E> {
     private List<Integer> navigationPages;
     // @page: 1, 2, ..
     public PaginationResult(Query<E> query, int page, int maxResult, int maxNavigationPage) {
-        final int pageIndex = page - 1 < 0 ? 0 : page - 1;
+        final int pageIndex = Math.max(page - 1, 0);
         int fromRecordIndex = pageIndex * maxResult;
 
         // Sử dụng setFirstResult và setMaxResults để thực hiện phân trang
@@ -36,38 +36,58 @@ public class PaginationResult<E> {
         this.maxResult = maxResult;
 
         // Tính tổng số trang
-        if (this.totalRecords % this.maxResult == 0) {
-            this.totalPages = this.totalRecords / this.maxResult;
-        } else {
-            this.totalPages = (this.totalRecords / this.maxResult) + 1;
-        }
+        this.totalPages = (int) Math.ceil((double) this.totalRecords / this.maxResult);
 
         this.maxNavigationPage = maxNavigationPage;
-        if (maxNavigationPage < totalPages) {
-            this.maxNavigationPage = maxNavigationPage;
-        }
+
+//        if (this.totalRecords % this.maxResult == 0) {
+//            this.totalPages = this.totalRecords / this.maxResult;
+//        } else {
+//            this.totalPages = (this.totalRecords / this.maxResult) + 1;
+//        }
+//
+//        this.maxNavigationPage = maxNavigationPage;
+//        if (maxNavigationPage < totalPages) {
+//            this.maxNavigationPage = maxNavigationPage;
+//        }
         this.calcNavigationPages();
     }
     private void calcNavigationPages() {
-        this.navigationPages = new ArrayList<Integer>();
+        this.navigationPages = new ArrayList<>();
+        // Nếu tổng số trang <= 1, không cần tính toán thêm
+        if (this.totalPages <= 1) {
+            this.navigationPages.add(1);
+            return;
+        }
+
         int current = Math.min(this.currentPage, this.totalPages);
-        int begin = current - this.maxNavigationPage / 2;
-        int end = current + this.maxNavigationPage / 2;
+        int begin = Math.max(1, current - this.maxNavigationPage / 2);
+        int end = Math.min(totalPages, current + this.maxNavigationPage / 2);
+
+//        int current = Math.min(this.currentPage, this.totalPages);
+//        int begin = current - this.maxNavigationPage / 2;
+//        int end = current + this.maxNavigationPage / 2;
+
         // Trang đầu tiên
         navigationPages.add(1);
+
         if (begin > 2) {
         // Dùng cho '...'
             navigationPages.add(-1);
         }
+
+        // Theme các trang từ begin đên end
         for (int i = begin; i < end; i++) {
             if (i > 1 && i < this.totalPages) {
                 navigationPages.add(i);
             }
         }
+
         if (end < this.totalPages - 2) {
         // Dùng cho '...'
             navigationPages.add(-1);
         }
+
         // Trang cuối cùng.
         navigationPages.add(this.totalPages);
     }

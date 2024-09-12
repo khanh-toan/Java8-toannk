@@ -3,6 +3,7 @@ package org.shopping.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.shopping.dao.*;
+import org.shopping.entity.Account;
 import org.shopping.entity.Product;
 import org.shopping.form.*;
 import org.shopping.model.*;
@@ -10,6 +11,9 @@ import org.shopping.pagination.PaginationResult;
 import org.shopping.utils.Utils;
 import org.shopping.validator.CustomerFormValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -26,6 +30,8 @@ import java.io.IOException;
 public class MainController {
     @Autowired
     private OrderDAO orderDAO;
+   @Autowired
+    private AccountDAO accountDAO;
     @Autowired
     private ProductDAO productDAO;
     @Autowired
@@ -59,6 +65,26 @@ public class MainController {
         return "index";
     }
 
+    @PostMapping("/admin/updateInfo")
+    public String updateInfo(Model model,
+                             @RequestParam("username") String newUsername) {
+        // Lấy thông tin người dùng hiện tại từ Spring Security
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String oldUsername = userDetails.getUsername(); // Username hiện tại
+
+        // Cập nhật thông tin tài khoản với username mới
+        accountDAO.saveAccount(oldUsername, newUsername);
+
+        // Lấy lại thông tin user mới nhất sau khi update
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        model.addAttribute("userDetails", userDetails);
+        model.addAttribute("username", newUsername); // Cập nhật username mới vào model
+
+        return "accountInfo"; // Trả về trang accountInfo với thông tin đã cập nhật
+    }
+
     // Danh sách sản phẩm.
     @RequestMapping({"/productList"})
     public String listProductHandler(Model model,
@@ -78,10 +104,11 @@ public class MainController {
     public String listProductHandler(HttpServletRequest request, Model model,
                                      @RequestParam(value = "code", defaultValue = "") String code) {
         Product product = null;
-        if (code != null && code.length() > 0) {
+        if (code != null && !code.isEmpty()) {
             product = productDAO.findProduct(code);
         }
         if (product != null) {
+            // Lấy thông tin cart trên session
             CartInfo cartInfo = Utils.getCartInSession(request);
             ProductInfo productInfo = new ProductInfo(product);
             cartInfo.addProduct(productInfo, 1);
@@ -93,14 +120,13 @@ public class MainController {
     public String removeProductHandler(HttpServletRequest request, Model model, //
                                        @RequestParam(value = "code", defaultValue = "") String code) {
         Product product = null;
-        if (code != null && code.length() > 0) {
+        if (code != null && !code.isEmpty()) {
             product = productDAO.findProduct(code);
         }
         if (product != null) {
             CartInfo cartInfo = Utils.getCartInSession(request);
             ProductInfo productInfo = new ProductInfo(product);
             cartInfo.removeProduct(productInfo);
-
         }
         return "redirect:/shoppingCart";
     }
@@ -145,7 +171,7 @@ public class MainController {
                                            final RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             customerForm.setValid(false);
-// Forward tới trang nhập lại.
+            // Forward tới trang nhập lại.
             return "shoppingCartCustomer";
         }
         customerForm.setValid(true);

@@ -23,6 +23,7 @@ public class CartInfo {
     public List<CartLineInfo> getCartLines() {
         return this.cartLines;
     }
+
     private CartLineInfo findLineByCode(String code) {
         for (CartLineInfo line : this.cartLines) {
             if (line.getProductInfo().getCode().equals(code)) {
@@ -31,15 +32,19 @@ public class CartInfo {
         }
         return null;
     }
+
     public void addProduct(ProductInfo productInfo, int quantity) {
+        // Check xem sp với code đã tồn tại chưa
         CartLineInfo line = this.findLineByCode(productInfo.getCode());
 
+        // Add thêm new product vào cart
         if (line == null) {
             line = new CartLineInfo();
             line.setQuantity(0);
             line.setProductInfo(productInfo);
             this.cartLines.add(line);
         }
+
         int newQuantity = line.getQuantity() + quantity;
         if (newQuantity <= 0) {
             this.cartLines.remove(line);

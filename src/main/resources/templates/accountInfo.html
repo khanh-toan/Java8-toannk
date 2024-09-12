@@ -7,133 +7,161 @@
     <link rel="stylesheet" type="text/css" th:href="@{../static/styles.css}">
     <style>
         html {
-            background: white;
+            background: #f0f0f5; /* Màu nền nhẹ nhàng */
         }
-        h3 {
-            margin: 0px;
-            padding: 0px;
-        }
+
         body {
             max-width: 860px;
             min-width: 360px;
             margin: 0px auto;
-            background: #F8F8F8;
+            background: #ffffff;
+            padding: 20px 15px;
+            font-family: Arial, sans-serif;
+            color: #333333;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Tạo hiệu ứng đổ bóng */
+            border-radius: 10px;
+        }
 
-            padding:0px 5px;
-            text-align:center;
+        h2, .page-title {
+            color: #333333;
+            font-weight: bold;
         }
-        .page-title {
-            font-size:120%;
-            text-align: left;
-            margin:10px 0px;
-        }
+
         .header-container {
             text-align: left;
-            border-bottom: 1px solid #ccc;
+            border-bottom: 2px solid #004d99;
             position: relative;
-            background: #5f5f5f;
+            background: #00509e; /* Màu nền header đậm hơn */
             color: white;
+            padding: 10px;
+            border-radius: 10px 10px 0 0;
         }
+
         .header-container .header-bar {
             position: absolute;
             right: 10px;
             bottom: 20px;
         }
+
         .header-container .header-bar a {
             color: white;
             font-weight: bold;
         }
+
         .footer-container {
             text-align: center;
-            margin-top: 10px;
-            padding: 5px 0px 0px 0px;
+            margin-top: 20px;
+            padding: 10px 0px;
+            background-color: #f8f8f8;
             border-top: 1px solid #ccc;
+            font-size: 12px;
+            color: #777777;
         }
+
         .menu-container {
             text-align: right;
             margin: 10px 5px;
         }
+
         .menu-container a {
-            margin: 5px 5px 5px 10px;
-            color: #004d99;
+            margin: 5px 10px;
+            color: #00509e; /* Tạo màu link đồng bộ */
             font-weight: bold;
             text-decoration: none;
         }
-        .site-name {
-            font-size:200%;
-            margin:10px 10px 10px 0px;
-            padding: 5px;
+
+        .menu-container a:hover {
+            color: #ff6600; /* Hiệu ứng hover cho link */
         }
 
-        .container {
-            margin: 5px 0px;
-        }
-        .demo-container, .login-container, .account-container {
-            padding: 5px;
-            border: 1px solid #ccc;
-            text-align:left;
-            margin:20px 0px;
-        }
-        .customer-info-container {
-            text-align: left;
-            border: 1px solid #ccc;
-            padding: 0px 5px;
-        }
-        .product-preview-container {
-            border: 1px solid #ccc;
-            padding: 5px;
-            width: 250px;
-            margin: 10px ;
-            display: inline-block;
-            text-align:left;
-        }
-        .product-preview-container input {
-            width: 50px;
+        .account-container {
+            padding: 20px;
+            border: 1px solid #cccccc;
+            border-radius: 8px;
+            margin-top: 20px;
+            background-color: #fafafa;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05); /* Tạo hiệu ứng shadow */
         }
 
-        .product-image {
-            width: 120px;
-            height: 80px;
-        }
         ul {
             list-style-type: none;
-            padding-left: 5px;
-            margin:5px;
+            padding-left: 0;
+            margin: 10px 0;
         }
 
-        .navi-item {
-            margin: 5px 5px 5px 20px;
+        li {
+            font-size: 16px;
+            padding: 5px 0;
         }
-        .button-update-sc {
 
-            color: red;
-            margin: 5px 5px 5px 20px;
-        }
-        .button-send-sc {
-            color: red;
-            margin: 5px 5px 5px 20px;
-        }
-        .error-message {
-            font-size: 90%;
-            color: red;
-            font-style: italic;
-        }
-        .price {
-            color: blue;
+        .button-update-sc, .button-send-sc {
+            color: white;
+            background-color: #00509e;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
             font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        .subtotal {
-            color: red;
+
+        .button-update-sc:hover, .button-send-sc:hover {
+            background-color: #ff6600;
+        }
+
+        #updateModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #cccccc;
+            width: 400px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        #updateModal h2 {
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        #updateModal form {
+            text-align: left;
+        }
+
+        #updateModal form label {
             font-weight: bold;
+            color: #333333;
         }
-        .total {
-            color: red;
+
+        #updateModal form input[type="text"] {
+            width: calc(100% - 10px);
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        #updateModal button {
+            background-color: #00509e;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
             font-weight: bold;
-            font-size: 120%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        table td {
-            padding: 5px;
+
+        #updateModal button:hover {
+            background-color: #ff6600;
         }
+
     </style>
 </head>
 <body>
@@ -141,6 +169,45 @@
 <th:block th:insert="~{/_menu}"></th:block>
 
 <div class="page-title">Account Info</div>
+
+<!-- Nút để mở popup -->
+<button onclick="openModal()">Update Profile</button>
+
+<!-- Modal để cập nhật thông tin -->
+<div id="updateModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; background-color:white; border:1px solid black; width:400px;">
+    <h2>Update Profile</h2>
+    <form th:action="@{/admin/updateInfo}" method="post">
+        <div>
+            <label for="username">User Name:</label>
+            <input type="text" id="username" name="username" th:value="${userDetails.username}">
+        </div>
+        <div>
+            <label for="status">Status:</label>
+            <input type="text" readonly id="status" name="password" th:value="${userDetails.isEnabled()}">
+        </div>
+        <div>
+            <label for="role">Role:</label>
+            <input type="text" id="role" readonly name="role" th:value="${userDetails.authorities}">
+        </div>
+        <div style="margin-top:10px;">
+            <button type="submit">Save</button>
+            <button type="button" onclick="closeModal()">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Hàm mở modal
+    function openModal() {
+        document.getElementById('updateModal').style.display = 'block';
+    }
+
+    // Hàm đóng modal
+    function closeModal() {
+        document.getElementById('updateModal').style.display = 'none';
+    }
+</script>
+
 <div class="account-container">
     <ul>
         <li>User Name: <span th:utext="${userDetails.username}"></span></li>

@@ -46,7 +46,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/login", "/admin/logout", "/403", "/styles.css")
                         .permitAll() // Cho phép truy cập mà không cần xác thực
-                        .requestMatchers("/admin/orderList", "/admin/order", "/admin/accountInfo")
+                        .requestMatchers("/admin/orderList", "/admin/order", "/admin/accountInfo", "/admin/accountInfo")
                         .hasAnyRole("EMPLOYEE", "MANAGER")
                         .requestMatchers("/admin/product")
                         .hasRole("MANAGER")
@@ -56,8 +56,7 @@ public class WebSecurityConfig {
                         .loginProcessingUrl("/j_spring_security_check")
                         .loginPage("/admin/login")
                         .defaultSuccessUrl("/admin/accountInfo")
-                        /*.defaultSuccessUrl("/test")*/
-                        .failureUrl("/admin/login?error=true")
+                        //.failureUrl("/admin/login?error=true")
                         .usernameParameter("userName")
                         .passwordParameter("password"))
                 .logout(logout -> logout

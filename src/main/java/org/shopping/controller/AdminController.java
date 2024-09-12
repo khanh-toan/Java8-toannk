@@ -74,7 +74,7 @@ public class AdminController {
         }
         final int MAX_RESULT = 5;
         final int MAX_NAVIGATION_PAGE = 10;
-        PaginationResult<OrderInfo> paginationResult //
+        PaginationResult<OrderInfo> paginationResult
                 = orderDAO.listOrderInfo(page, MAX_RESULT, MAX_NAVIGATION_PAGE);
         model.addAttribute("paginationResult", paginationResult);
         return "orderList";
@@ -85,7 +85,7 @@ public class AdminController {
     public String product(Model model, @RequestParam(value = "code", defaultValue = "") String code) {
         ProductForm productForm = null;
 
-        if (code != null && code.length() > 0) {
+        if (code != null && !code.isEmpty()) {
             Product product = productDAO.findProduct(code);
             if (product != null) {
                 productForm = new ProductForm(product);

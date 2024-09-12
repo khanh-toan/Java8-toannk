@@ -9,12 +9,13 @@
 <th:block th:include="/_header"></th:block>
 <th:block th:include="/_menu"></th:block>
 <div class="page-title">My Cart</div>
-<th:block th:if="${cartForm == null || cartForm.cartLines == null || cartForm.cartLines.empty}">
+<<th:block th:if="${cartForm == null || cartForm.cartLines == null || cartForm.cartLines.isEmpty()}">
     <h2>There is no items in Cart</h2>
     <a th:href="@{/productList}">Show Product List</a>
 </th:block>
-<th:block th:if="${cartForm != null && cartForm.cartLines != null && !cartForm.cartLines.empty}">
-    <form method="POST" th:object="${cartForm}" th:action="@{/shoppingCart}">
+<th:block th:if="${cartForm != null && cartForm.cartLines != null && !cartForm.cartLines.isEmpty()}">
+
+<form method="POST" th:object="${cartForm}" th:action="@{/shoppingCart}">
         <div class="product-preview-container"
              th:each="cartLineInfo, varStatus : ${cartForm.cartLines}">
             <ul>
@@ -30,7 +31,7 @@
                 <li>Price:
                     <span class="price"
                           th:utext="${#numbers.formatDecimal(cartLineInfo.productInfo.price,3,2,'COMMA')}">
-</span>
+                    </span>
                 </li>
                 <li>Quantity:
                     <input
@@ -41,7 +42,7 @@
                     <span class="subtotal"
                           th:utext="${#numbers.formatDecimal(cartLineInfo.amount,3,2,'COMMA')}">
 
-</span>
+                    </span>
                 </li>
                 <li>
                     <a th:href="@{|/shoppingCartRemoveProduct?code=${cartLineInfo.productInfo.code}|}">
