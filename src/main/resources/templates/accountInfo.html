@@ -195,8 +195,11 @@
         </div>
         <div>
             <label for="image">Image:</label>
-            <input type="image" id="image" readonly name="role" th:value="${accountInfoForm.image}" alt="">
-            <img th:src=""></img>
+            <img id="image" th:src="@{|/productImage?code=${accountInfoForm.image}|}" width="100"/>
+        </div>
+        <div>
+            <label>Upload Image</label>
+            <input type="file" th:field="*{fileData}" />
         </div>
         
         <div style="margin-top:10px;">
