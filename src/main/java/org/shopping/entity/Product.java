@@ -1,36 +1,40 @@
 package org.shopping.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.io.Serial;
 import java.util.List;
 
-@Builder
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Data
 @Table(name = "products")
 @AttributeOverride(name = "id", column = @Column(name = "id"
         , nullable = false, columnDefinition = "BIGINT UNSIGNED"))
 public class Product extends BaseEntity{
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    @Column(name = "CODE")
+    @Column(name = "Code")
     private String code;
 
-    @Column(name = "NAME")
+    @Column(name = "Name")
     private String name;
 
-    @Column(name = "PRICE")
+    @Column(name = "Price")
     private Double price;
 
-    @Column(name = "IMAGE")
+    @Column(name = "Description")
+    private String description;
+
+    @Column(name = "Image")
     @Lob
     private byte[] image;
 
-    @Column(name = "IS_DELETED")
+    @Column(name = "Is_delete")
     private Boolean isDeleted;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

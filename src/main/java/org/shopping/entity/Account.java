@@ -1,23 +1,22 @@
 package org.shopping.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.io.Serial;
+
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Data
 @Table(name = "account")
 @AttributeOverride(name = "id", column = @Column(name = "id"
         , nullable = false, columnDefinition = "BIGINT UNSIGNED"))
 public class Account extends BaseEntity{
+    @Serial
     private static final long serialVersionUID = 1L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
 
     @Column(name = "USER_NAME")
     private String username;
@@ -27,6 +26,15 @@ public class Account extends BaseEntity{
 
     @Column(name = "USER_ROLE")
     private String role;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "Image", length = Integer.MAX_VALUE, nullable = true)
+    private byte[] image;
 
     @Column(name = "IS_DELETED")
     private Boolean isDeleted;

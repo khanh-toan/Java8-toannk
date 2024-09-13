@@ -1,21 +1,25 @@
 package org.shopping.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Data
 @Table(name = "orders",
 uniqueConstraints = { @UniqueConstraint(columnNames = "ORDER_NUM")})
 @AttributeOverride(name = "id", column = @Column(name = "id"
         , nullable = false, columnDefinition = "BIGINT UNSIGNED"))
-public class Order extends BaseEntity{
+public class Order extends BaseEntity implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Column(name = "CUSTOMER_ADDRESS")
@@ -34,7 +38,10 @@ public class Order extends BaseEntity{
     private Double amount;
 
     @Column(name = "ORDER_NUM")
-    private Integer order_num;
+    private Integer orderNum;
+
+    @Column(name = "Order_Date", nullable = false)
+    private Date orderDate;
 
     @Column(name = "IS_DELETED")
     private Boolean isDeleted;
