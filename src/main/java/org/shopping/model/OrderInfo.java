@@ -22,7 +22,7 @@ public class OrderInfo {
 
     public Order getOrder() {
         Order order = new Order();
-        order.setId(String.valueOf(this.id));
+        order.setId(this.id);
         order.setOrderDate(this.orderDate);
         order.setOrderNum(this.orderNum);
         order.setAmount(this.amount);

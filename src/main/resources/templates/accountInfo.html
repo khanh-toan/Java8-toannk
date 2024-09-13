@@ -176,26 +176,29 @@
 <!-- Modal để cập nhật thông tin -->
 <div id="updateModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; background-color:white; border:1px solid black; width:400px;">
     <h2>Update Profile</h2>
-    <form th:action="@{/admin/updateInfo}" method="post">
+    <form th:object="${accountInfoForm}" th:action="@{/admin/accountInfo}" method="post" enctype="multipart/form-data">
+        <div>
+            <input type="text" id="id" th:field="*{id}" th:value="${accountInfoForm.id}">
+        </div>
         <div>
             <label for="username">User Name:</label>
-            <input type="text" id="username" name="username" th:value="${accountInfoForm.userName}">
+            <input type="text" id="username" th:field="*{userName}" th:value="${accountInfoForm.userName}">
         </div>
         <div>
             <label for="status">Status:</label>
-            <input type="text" readonly id="status" name="password" th:value="${accountInfoForm.isNewAccount()}">
+            <input type="text" readonly id="status" th:field="*{newAccount}" th:value="${accountInfoForm.isNewAccount()}">
         </div>
         <div>
             <label for="role">Role:</label>
-            <input type="text" id="role" readonly name="role" th:value="${accountInfoForm.userRole}">
+            <input type="text" id="role" readonly th:field="*{userRole}" th:value="${accountInfoForm.userRole}">
         </div>
         <div>
             <label for="address">Address:</label>
-            <input type="text" id="address" readonly name="role" th:value="${accountInfoForm.address}">
+            <input type="text" id="address" th:field="*{address}" th:value="${accountInfoForm.address}">
         </div>
         <div>
             <label for="image">Image:</label>
-            <img id="image" th:src="@{|/productImage?code=${accountInfoForm.image}|}" width="100"/>
+            <img id="image" th:src="@{|/productImage?id=${accountInfoForm.id}|}" width="100"/>
         </div>
         <div>
             <label>Upload Image</label>
@@ -223,11 +226,11 @@
 
 <div class="account-container">
     <ul>
-        <li>User Name: <span th:utext="${userDetails.username}"></span></li>
+        <li>User Name: <span th:utext="${accountInfoForm.userName}"></span></li>
         <li>
             Role:
             <ul>
-                <li th:each="auth : ${userDetails.authorities}" th:utext="${auth.authority}"></li>
+                <li th:utext="${accountInfoForm.userRole}"></li>
             </ul>
         </li>
     </ul>

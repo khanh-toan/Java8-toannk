@@ -6,6 +6,7 @@ import lombok.Data;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @MappedSuperclass
@@ -16,9 +17,9 @@ public class BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, updatable = false)
-    protected String id;
+    protected int id;
 
-    protected LocalDateTime createdAt;
-    protected LocalDateTime updatedAt;
-    protected LocalDateTime deletedAt;
+    protected Date createdAt;
+    protected Date updatedAt;
+    protected Date deletedAt;
 }

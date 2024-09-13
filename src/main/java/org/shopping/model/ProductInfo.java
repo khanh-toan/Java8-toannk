@@ -12,7 +12,7 @@ public class ProductInfo {
     public boolean isDelete;
 
     public ProductInfo(Product product) {
-        this.id = Integer.parseInt(product.getId());
+        this.id = product.getId();
         this.name = product.getName();
         this.price = product.getPrice();
         this.description = product.getDescription();
