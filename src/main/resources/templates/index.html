@@ -6,8 +6,8 @@
     <link rel="stylesheet" type="text/css" th:href="@{/styles.css}" />
 </head>
 <body>
-<th:block th:include="/_header"></th:block>
-<th:block th:include="/_menu"></th:block>
+<th:block th:insert="~{/_header}"></th:block>
+<th:block th:insert="~{/_menu}"></th:block>
 <div class="page-title">Shopping Cart Demo</div>
 <div class="demo-container">
     <h3>Demo content</h3>
@@ -17,6 +17,6 @@
         <li>Reports</li>
     </ul>
 </div>
-<th:block th:include="/_footer"></th:block>
+<th:block th:insert="~{/_footer}"></th:block>
 </body>
 </html>

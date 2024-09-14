@@ -5,12 +5,12 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "ORDERS", //
+@Table(name = "Orders", //
         uniqueConstraints = { @UniqueConstraint(columnNames = "Order_Num") })
 public class Order implements Serializable {
     private static final long serialVersionUID = -2576670215015463100L;
     @Id
-    @Column(name = "ID", length = 50)
+    @Column(name = "id", length = 50)
     private String id;
     @Column(name = "Order_Date", nullable = false)
     private Date orderDate;

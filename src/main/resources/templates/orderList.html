@@ -6,8 +6,8 @@
     <link rel="stylesheet" type="text/css" th:href="@{/styles.css}">
 </head>
 <body>
-<th:block th:include="/_header"></th:block>
-<th:block th:include="/_menu"></th:block>
+<th:block th:insert="~{/_header}"></th:block>
+<th:block th:insert="~{/_menu}"></th:block>
 <div class="page-title">Order List</div>
 <div>Total Order Count: <span th:utext="${paginationResult.totalRecords}"></span></div>
 <table border="1" style="width:100%">
@@ -39,6 +39,6 @@
         <span th:if="${page == -1}" class="nav-item"> ... </span>
     </th:block>
 </div>
-<th:block th:include="/_footer"></th:block>
+<th:block th:insert="~{/_footer}"></th:block>
 </body>
 </html>

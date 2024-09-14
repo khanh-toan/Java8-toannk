@@ -8,6 +8,7 @@ import org.shopping.entity.Product;
 import org.shopping.form.*;
 import org.shopping.model.*;
 import org.shopping.pagination.PaginationResult;
+import org.shopping.pagination.Paging;
 import org.shopping.utils.Utils;
 import org.shopping.validator.CustomerFormValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +95,7 @@ public class MainController {
         final int maxResult = 5;
         // Hiện thị số trang trên thanh điều hướng
         final int maxNavigationPage = 10;
-        PaginationResult<ProductInfo> result = productDAO.queryProducts(page,
+        Paging<ProductInfo> result = productDAO.queryProducts(page,
                 maxResult, maxNavigationPage, likeName);
         model.addAttribute("paginationProducts", result);
         return "productList";
@@ -117,7 +118,7 @@ public class MainController {
     }
 
     @RequestMapping({"/shoppingCartRemoveProduct"})
-    public String removeProductHandler(HttpServletRequest request, Model model, //
+    public String removeProductHandler(HttpServletRequest request, Model model,
                                        @RequestParam(value = "code", defaultValue = "") String code) {
         Product product = null;
         if (code != null && !code.isEmpty()) {
@@ -146,6 +147,7 @@ public class MainController {
     public String shoppingCartHandler(HttpServletRequest request, Model model) {
         CartInfo myCart = Utils.getCartInSession(request);
         model.addAttribute("cartForm", myCart);
+        System.out.println(myCart.getCartLines());
         return "shoppingCart";
     }
 

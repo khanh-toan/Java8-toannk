@@ -4,19 +4,19 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "OORDER_DETAILS")
+@Table(name = "Order_Details")
 public class OrderDetail implements Serializable {
     private static final long serialVersionUID = 7550745928843183535L;
 
     @Id
-    @Column(name = "ID", length = 50, nullable = false)
+    @Column(name = "id", length = 50, nullable = false)
     private String id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ORDER_ID", nullable = false, //
+    @JoinColumn(name = "Order_id", nullable = false, //
             foreignKey = @ForeignKey(name = "ORDER_DETAIL_ORD_FK"))
     private Order order;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PRODUCT_ID", nullable = false, //
+    @JoinColumn(name = "Product_id", nullable = false, //
             foreignKey = @ForeignKey(name = "ORDER_DETAIL_PROD_FK"))
     private Product product;
     @Column(name = "Quanity", nullable = false)

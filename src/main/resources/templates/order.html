@@ -6,8 +6,8 @@
     <link rel="stylesheet" type="text/css" th:href="@{/styles.css}">
 </head>
 <body>
-<th:block th:include="/_header"></th:block>
-<th:block th:include="/_menu"></th:block>
+<th:block th:insert="~{/_header}"></th:block>
+<th:block th:insert="~{/_menu}"></th:block>
 <div class="page-title">Order Info</div>
 <div class="customer-info-container">
     <h3>Customer Information:</h3>
@@ -42,6 +42,6 @@
         <td th:utext="${#numbers.formatDecimal(orderDetailInfo.amount,3,2,'COMMA')}"></td>
     </tr>
 </table>
-<th:block th:include="/_footer"></th:block>
+<th:block th:insert="~{/_footer}"></th:block>
 </body>
 </html>

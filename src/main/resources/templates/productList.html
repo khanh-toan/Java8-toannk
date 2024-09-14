@@ -162,6 +162,7 @@
         #updateModal button:hover {
             background-color: #ff6600;
         }
+        /* CSS đã có ở trên */
         .pagination {
             display: inline-block;
             padding-left: 0;
@@ -196,10 +197,11 @@
     </style>
 </head>
 <body>
-<th:block th:include="/_header"></th:block>
-<th:block th:include="/_menu"></th:block>
+<th:block th:insert="~{/_header}"></th:block>
+<th:block th:insert="~{/_menu}"></th:block>
+
 <div class="page-title">Product List</div>
-<div class="product-preview-container" th:each="prodInfo : ${paginationProducts.list}">
+<div class="product-preview-container" th:each="prodInfo : ${paginationProducts.data}">
     <ul>
         <li><img class="product-image"
                  th:src="@{|/productImage?code=${prodInfo.code}|}" /></li>
@@ -218,38 +220,27 @@
         </th:block>
     </ul>
 </div>
-<br/>
-<!--<div class="page-navigator" th:if="${paginationProducts.totalPages > 1}">-->
-<!--    <p>Total Pages: <span th:text="${paginationProducts.totalRecords}"></span></p>-->
-<!--    <th:block th:each="page : ${paginationProducts.navigationPages}">-->
-<!--        <a th:href="@{|/productList?page=${page}|}" th:if="${page != -1}" class="nav-item" th:text="${page}"></a>-->
-<!--        <span class="nav-item" th:if="${page == -1}"> ... </span>-->
-<!--    </th:block>-->
-<!--</div>-->
-<!-- Phân trang -->
-<!--<div>-->
-<!--    <span th:each="navPage : ${paginationProducts.navigationPages}">-->
-<!--        <a th:if="${navPage > 0}" th:text="${navPage}" th:href="@{/productList(page=${navPage})}">Page Number</a>-->
-<!--        <span th:if="${navPage == -1}">...</span>-->
-<!--    </span>-->
-<!--</div>-->
 
-<nav aria-label="Page navigation example">
+<div>
     <ul class="pagination">
-        <li class="page-item" th:if="${paginationProducts.currentPage > 1}">
-            <a class="page-link" th:href="@{|/productList?page=${paginationProducts.currentPage - 1}|}">Previous</a>
+        <!-- Previous Page Link -->
+        <li th:if="${paginationProducts.currentPage > 1}">
+            <a th:href="@{/productList(page=${paginationProducts.currentPage - 1}, name=${param.name})}">Previous</a>
         </li>
-        <th:block th:each="page : ${paginationProducts.navigationPages}">
-            <li class="page-item" th:class="${paginationProducts.currentPage == page} ? 'active' : ''">
-                <a class="page-link" th:href="@{|/productList?page=${page}|}"
-                   th:text="${page}"></a>
-            </li>
-        </th:block>
-        <li class="page-item" th:if="${paginationProducts.currentPage < paginationProducts.totalPages}">
-            <a class="page-link" th:href="@{|/productList?page=${paginationProducts.currentPage + 1}|}">Next</a>
+
+        <!-- Page Number Links -->
+        <li th:each="pageNumber : ${#numbers.sequence(1, paginationProducts.totalPages)}"
+            th:classappend="${pageNumber == paginationProducts.currentPage} ? 'active' : ''">
+            <a th:href="@{/productList(page=${pageNumber}, name=${param.name})}" th:text="${pageNumber}"></a>
+        </li>
+
+        <!-- Next Page Link -->
+        <li th:if="${paginationProducts.currentPage < paginationProducts.totalPages}">
+            <a th:href="@{/productList(page=${paginationProducts.currentPage + 1}, name=${param.name})}">Next</a>
         </li>
     </ul>
-</nav>
-<th:block th:include="/_footer"></th:block>
+</div>
+
+<th:block th:insert="~{/_footer}"></th:block>
 </body>
 </html>

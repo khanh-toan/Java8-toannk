@@ -6,21 +6,20 @@
     <link rel="stylesheet" type="text/css" th:href="@{/styles.css}">
 </head>
 <body>
-<th:block th:include="/_header"></th:block>
-<th:block th:include="/_menu"></th:block>
+<th:block th:insert="~{/_header}"></th:block>
+<th:block th:insert="~{/_menu}"></th:block>
 <div class="page-title">My Cart</div>
-<<th:block th:if="${cartForm == null || cartForm.cartLines == null || cartForm.cartLines.isEmpty()}">
+<th:block th:if="${cartForm == null || cartForm.cartLines == null || cartForm.cartLines.isEmpty()}">
     <h2>There is no items in Cart</h2>
     <a th:href="@{/productList}">Show Product List</a>
 </th:block>
-<th:block th:if="${cartForm != null && cartForm.cartLines != null && !cartForm.cartLines.isEmpty()}">
-
-<form method="POST" th:object="${cartForm}" th:action="@{/shoppingCart}">
+<th:block th:if="${cartForm.cartLines != null && !cartForm.cartLines.isEmpty()}">
+    <form method="POST" th:object="${cartForm}" th:action="@{/shoppingCart}">
         <div class="product-preview-container"
              th:each="cartLineInfo, varStatus : ${cartForm.cartLines}">
             <ul>
                 <li><img class="product-image"
-                         th:src="@{|/productImage?code=${cartLineInfo.productInfo.code}|}" />
+                         th:src="@{|/productImage?code=${cartLineInfo.productInfo.code}|}"  alt=""/>
                 </li>
                 <li>Code: <span th:utext="${cartLineInfo.productInfo.code}"></span>
                     <input type="hidden"
@@ -34,9 +33,11 @@
                     </span>
                 </li>
                 <li>Quantity:
-                    <input
-                            th:name="|cartLines[${varStatus.index}].quantity|"
-                            th:value="${cartLineInfo.quantity}" />
+                    <label>
+                        <input
+                                th:name="|cartLines[${varStatus.index}].quantity|"
+                                th:value="${cartLineInfo.quantity}" />
+                    </label>
                 </li>
                 <li>Subtotal:
                     <span class="subtotal"
@@ -59,6 +60,6 @@
            th:href="@{/productList}">Continue Buy</a>
     </form>
 </th:block>
-<th:block th:include="/_footer"></th:block>
+<th:block th:insert="~{/_footer}"></th:block>
 </body>
 </html>
