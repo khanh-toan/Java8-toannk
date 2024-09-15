@@ -6,17 +6,15 @@ import lombok.RequiredArgsConstructor;
 import org.shopping.entity.Account;
 import org.shopping.form.AccountInfoForm;
 import org.shopping.service.AccountService;
-import org.springframework.boot.Banner;
+import org.shopping.validator.AccountInfoValidator;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -29,6 +27,20 @@ import java.util.Optional;
 public class AdminController {
 
     private final AccountService accountService;
+    private final AccountInfoValidator accountInfoValidator;
+
+    @InitBinder
+    public void myInitBinder(WebDataBinder dataBinder) {
+        Object target = dataBinder.getTarget();
+        if (target == null){
+            return;
+        }
+        if (target.getClass() == AccountInfoForm.class){
+            dataBinder.setValidator(accountInfoValidator);
+            System.out.println("AccountInfo Valid");
+        }
+    }
+
     @RequestMapping(value = { "/admin/login" }, method = RequestMethod.GET)
     public String login(Model model) {
         System.out.println("test login!!!!!!!!!");
@@ -92,5 +104,16 @@ public class AdminController {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Product image not found");
         }
     }
+
+    @RequestMapping(value = { "/admin/accountManager" }, method = RequestMethod.GET)
+    public String listUserHandler(Model model,
+                                  @RequestParam(value = "name", required = false,defaultValue = "") String likeName,
+                                  @RequestParam(value = "page", required = false, defaultValue = "1") int currentPage,
+                                  @RequestParam(value = "size", required = false, defaultValue = "8") int size) {
+
+        return "";
+    }
+
+
 
 }

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" lang="en">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
 <head>
     <meta charset="UTF-8">
-    <title>Account Info</title>
-    <link rel="stylesheet" type="text/css" th:href="@{../static/styles.css}">
+    <title>Product List</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/styles.css}">
     <style>
         html {
             background: #f0f0f5; /* Màu nền nhẹ nhàng */
@@ -161,6 +162,37 @@
         #updateModal button:hover {
             background-color: #ff6600;
         }
+        /* CSS đã có ở trên */
+        .pagination {
+            display: inline-block;
+            padding-left: 0;
+            margin: 10px 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .pagination li {
+            display: inline;
+            margin: 0 5px;
+        }
+
+        .pagination li a {
+            color: #00509e;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .pagination li a:hover {
+            background-color: #ff6600;
+            color: white;
+        }
+
+        .pagination .active a {
+            background-color: #00509e;
+            color: white;
+        }
 
     </style>
 </head>
@@ -168,68 +200,43 @@
 <th:block th:insert="~{/_header}"></th:block>
 <th:block th:insert="~{/_menu}"></th:block>
 
-<div class="page-title">Account Info</div>
-
-<!-- Nút để mở popup -->
-<button onclick="openModal()">Update Profile</button>
-
-<!-- Modal để cập nhật thông tin -->
-<div id="updateModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); padding:20px; background-color:white; border:1px solid black; width:400px;">
-    <h2>Update Profile</h2>
-    <form th:object="${accountInfoForm}" th:action="@{/admin/accountInfo}" method="post" enctype="multipart/form-data">
-        <div>
-            <label for="id">
-                <input hidden="hidden" type="text" id="id" th:field="*{id}" th:value="${accountInfoForm.id}">
-            </label>
-        </div>
-        <div>
-            <label for="username">User Name:</label>
-            <input type="text" id="username" th:field="*{userName}" th:value="${accountInfoForm.userName}">
-        </div>
-        <div>
-            <label for="role">Role:</label>
-            <input type="text" id="role" readonly th:field="*{userRole}" th:value="${accountInfoForm.userRole}">
-        </div>
-        <div>
-            <label for="address">Address:</label>
-            <input type="text" id="address" th:field="*{address}" th:value="${accountInfoForm.address}">
-        </div>
-        <div>
-            <label for="image">Image:</label>
-            <img id="image" th:src="@{|/productImage?id=${accountInfoForm.id}|}" style="width:200px; height: 200px"/>
-        </div>
-        <div>
-            <label>Upload Image</label>
-            <input type="file" th:field="*{fileData}" />
-        </div>
-        
-        <div style="margin-top:10px;">
-            <button type="submit">Save</button>
-            <button type="button" onclick="closeModal()">Cancel</button>
-        </div>
-    </form>
+<div class="page-title">Product List</div>
+<div class="product-preview-container" th:each="prodInfo : ${paginationProducts.data}">
+    <ul>
+        <li><img class="product-image"
+                 th:src="@{|/productImage?code=${prodInfo.code}|}" /></li>
+        <li>Code: <span th:utext="${prodInfo.code}"></span></li>
+        <li>Name: <span th:utext="${prodInfo.name}"></span></li>
+        <li>Price: <span th:utext="${#numbers.formatDecimal(prodInfo.price,3,2,'COMMA')}"></span></li>
+        <li>
+            <a th:href="@{|/buyProduct?code=${prodInfo.code}|}">Buy Now</a>
+        </li>
+        <!-- For Manager edit Product -->
+        <th:block sec:authorize="hasAuthority('ROLE_MANAGER')">
+            <li>
+                <a style="color:red;"
+                   th:href="@{|/admin/product?code=${prodInfo.code}|}">Edit Product</a>
+            </li>
+        </th:block>
+    </ul>
 </div>
 
-<script>
-    // Hàm mở modal
-    function openModal() {
-        document.getElementById('updateModal').style.display = 'block';
-    }
+<div>
+    <ul class="pagination">
+        <!-- Previous Page Link -->
+        <li th:if="${paginationProducts.currentPage > 1}">
+            <a th:href="@{/productList(page=${paginationProducts.currentPage - 1}, name=${param.name})}">Previous</a>
+        </li>
 
-    // Hàm đóng modal
-    function closeModal() {
-        document.getElementById('updateModal').style.display = 'none';
-    }
-</script>
+        <!-- Page Number Links -->
+        <li th:each="pageNumber : ${#numbers.sequence(1, paginationProducts.totalPages)}"
+            th:classappend="${pageNumber == paginationProducts.currentPage} ? 'active' : ''">
+            <a th:href="@{/productList(page=${pageNumber}, name=${param.name})}" th:text="${pageNumber}"></a>
+        </li>
 
-<div class="account-container">
-    <ul>
-        <li>User Name: <span th:utext="${accountInfoForm.userName}"></span></li>
-        <li>
-            Role:
-            <ul>
-                <li th:utext="${accountInfoForm.userRole}"></li>
-            </ul>
+        <!-- Next Page Link -->
+        <li th:if="${paginationProducts.currentPage < paginationProducts.totalPages}">
+            <a th:href="@{/productList(page=${paginationProducts.currentPage + 1}, name=${param.name})}">Next</a>
         </li>
     </ul>
 </div>

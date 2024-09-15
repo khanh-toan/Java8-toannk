@@ -1,10 +1,16 @@
 package org.shopping.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.shopping.entity.Product;
 
 @Data
-public class ProductInfo {
+@EqualsAndHashCode(callSuper = true)
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductInfo extends SearchRequestDTO{
     private int id;
     private String name;
     private String description;
