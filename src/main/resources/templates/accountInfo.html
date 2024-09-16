@@ -181,7 +181,9 @@
 <div id="updateModal">
     <h2>Update Profile</h2>
     <form th:object="${accountInfoForm}" th:action="@{/admin/accountInfo}" method="post" enctype="multipart/form-data">
-        <!-- Form fields for updating profile -->
+        <div>
+            <input type="text" hidden="hidden" th:field="*{id}">
+        </div>
         <div>
             <label for="username">User Name:</label>
             <input type="text" id="username" th:field="*{userName}">
@@ -211,16 +213,20 @@
     <h2>Change Password</h2>
     <form th:object="${accountChangePasswordForm}" th:action="@{/admin/changePassword}" method="post" onsubmit="return validatePassword()">
         <div>
+            <label for="id">Id:</label>
+            <input type="text" id="id" th:field="*{id}">
+        </div>
+        <div>
             <label for="currentPassword">Current Password:</label>
-            <input type="password" id="currentPassword" name="currentPassword" required>
+            <input type="password" id="currentPassword" th:field="*{currentPassword}" required>
         </div>
         <div>
             <label for="newPassword">New Password:</label>
-            <input type="password" id="newPassword" name="newPassword" required>
+            <input type="password" id="newPassword" th:field="*{newPassword}" required>
         </div>
         <div>
             <label for="confirmPassword">Confirm New Password:</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" required>
+            <input type="password" id="confirmPassword" th:field="*{confirmNewPassword}" required>
         </div>
 
         <!-- Hiển thị thông báo lỗi -->
@@ -229,7 +235,7 @@
         </div>
 
         <div style="margin-top:10px;">
-            <button type="submit">Change Password</button>
+            <button type="submit" >Change Password</button>
             <button type="button" onclick="closePasswordModal()">Cancel</button>
         </div>
     </form>

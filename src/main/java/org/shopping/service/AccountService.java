@@ -1,9 +1,15 @@
 package org.shopping.service;
 
 import lombok.RequiredArgsConstructor;
+import org.shopping.common.ConflictException;
 import org.shopping.entity.Account;
+import org.shopping.form.AccountChangePasswordForm;
 import org.shopping.repository.AccountRepository;
 import org.shopping.utils.ConvertUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -13,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AccountService {
     private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Account findByUserName(String username) {
         Account account = accountRepository.findByUsername(username);
@@ -51,5 +58,22 @@ public class AccountService {
             }
         }
         return null;
+    }
+
+    public void updatePassword(AccountChangePasswordForm accountChangePasswordForm) {
+        Optional<Account> DbAccount = accountRepository.findById(accountChangePasswordForm.getId());
+        if (DbAccount.isEmpty()){
+            throw new UsernameNotFoundException("Don't exist account");
+        }
+        String hashedPassword = passwordEncoder.encode(DbAccount.get().getPassword());
+        if (!accountChangePasswordForm.getCurrentPassword().equals(hashedPassword)){
+            throw new ConflictException("Password don't correct");
+        }
+
+        Account newAccount = DbAccount.get();
+        newAccount.setUpdatedAt(new Date());
+        newAccount.setPassword(accountChangePasswordForm.getNewPassword());
+
+        accountRepository.save(newAccount);
     }
 }

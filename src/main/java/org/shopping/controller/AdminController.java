@@ -63,6 +63,9 @@ public class AdminController {
         accountInfoForm = new AccountInfoForm(account);
 
         System.out.println("AccountInfo: " + accountInfoForm);
+
+        AccountChangePasswordForm accountChangePasswordForm = new AccountChangePasswordForm(account);
+        model.addAttribute("accountChangePasswordForm", accountChangePasswordForm);
         model.addAttribute("accountInfoForm", accountInfoForm);
         return "accountInfo";
     }
@@ -125,12 +128,33 @@ public class AdminController {
         }
     }
 
-    @PostMapping(value = { "/admin/changePassword" })
-    public String userChangePass(Model model,
+    @GetMapping(value = { "/admin/changePassword" })
+    public String userChangePassword(Model model) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AccountChangePasswordForm accountChangePassword = null;
+        Account account = accountService.findByUserName(userDetails.getUsername());
+        accountChangePassword = new AccountChangePasswordForm(account);
+        model.addAttribute("accountChangePasswordForm", accountChangePassword);
+        return "accountInfo";
+    }
+
+    @PostMapping(value = { "/admin/changePassword"})
+    public String userChangePassword(Model model,
                                  @ModelAttribute("accountChangePasswordForm") @Validated AccountChangePasswordForm accountChangePasswordForm,
                                  BindingResult result, final RedirectAttributes redirectAttributes) {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return "";
+        if(result.hasErrors()){
+            return "accountInfo";
+        }
+        try {
+            accountService.updatePassword(accountChangePasswordForm);
+        } catch (Exception e) {
+            System.out.println("ALTER");
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            String message = rootCause.getMessage();
+            model.addAttribute("errorMessage", message);
+            return "accountInfo";
+        }
+        return "redirect:accountInfo";
     }
 
     @RequestMapping(value = { "/admin/accountManager" }, method = RequestMethod.GET)

@@ -1,30 +1,36 @@
 package org.shopping.form;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.shopping.entity.Account;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccountChangePasswordForm {
     private int id;
-    private String encrytedPassword;
-    private String verifyPassword;
-    private boolean newPassword;
+    private String currentPassword;
+    private String newPassword;
+    private String confirmNewPassword;
+    /*private boolean newPassword;*/
 
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     public AccountChangePasswordForm(Account account){
         this.id = account.getId();
-        this.encrytedPassword =account.getPassword();
+        this.currentPassword =account.getPassword();
     }
 
     public Account getAccount() throws IOException{
         Account account = new Account();
         account.setId(this.id);
-        if (this.encrytedPassword != null) {
-            account.setPassword(bCryptPasswordEncoder.encode(this.encrytedPassword));
+        if (this.currentPassword != null) {
+            account.setPassword(bCryptPasswordEncoder.encode(this.currentPassword));
         }
         return account;
     }
