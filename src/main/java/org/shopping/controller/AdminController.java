@@ -4,9 +4,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.shopping.entity.Account;
+import org.shopping.form.AccountChangePasswordForm;
 import org.shopping.form.AccountInfoForm;
 import org.shopping.service.AccountService;
+import org.shopping.service.UserDetailsServiceImpl;
 import org.shopping.validator.AccountInfoValidator;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -28,6 +32,7 @@ public class AdminController {
 
     private final AccountService accountService;
     private final AccountInfoValidator accountInfoValidator;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @InitBinder
     public void myInitBinder(WebDataBinder dataBinder) {
@@ -72,6 +77,21 @@ public class AdminController {
         System.out.println("Form Account: " + accountInfoForm);
         try {
             accountService.updateProfile(accountInfoForm.getAccount());
+
+            //Neu update username thi cap nhat lai SecurityContextHolder
+            Account updatedAccount = accountInfoForm.getAccount();
+            UserDetails updatedUserDetails = userDetailsService.loadUserByUsername(updatedAccount.getUsername());
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                    updatedUserDetails,
+                    authentication.getCredentials(),
+                    authentication.getAuthorities()
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+
         }catch (IOException e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             String message = rootCause.getMessage();
@@ -103,6 +123,14 @@ public class AdminController {
         }else{
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Product image not found");
         }
+    }
+
+    @PostMapping(value = { "/admin/changePassword" })
+    public String userChangePass(Model model,
+                                 @ModelAttribute("accountChangePasswordForm") @Validated AccountChangePasswordForm accountChangePasswordForm,
+                                 BindingResult result, final RedirectAttributes redirectAttributes) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return "";
     }
 
     @RequestMapping(value = { "/admin/accountManager" }, method = RequestMethod.GET)
