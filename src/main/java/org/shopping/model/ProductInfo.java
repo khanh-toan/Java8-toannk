@@ -13,17 +13,17 @@ import org.shopping.entity.Product;
 public class ProductInfo extends SearchRequestDTO{
     private int id;
     private String name;
+    private String code;
     private String description;
     private double price;
     public boolean isDelete;
 
     public ProductInfo(Product product) {
+        this.code = product.getCode();
         this.id = product.getId();
         this.name = product.getName();
         this.price = product.getPrice();
         this.description = product.getDescription();
         this.isDelete = product.getIsDeleted();
     }
-
-
 }

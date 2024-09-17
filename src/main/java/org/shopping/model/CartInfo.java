@@ -68,12 +68,18 @@ public class CartInfo {
      }
 
      public void updateQuantity(CartInfo cartInfo){
-        if (cartInfo != null){
+        /*if (cartInfo != null){
             cartInfo.cartLines.forEach(
                     cartLine -> {
                         this.updateProduct(cartLine.getProductInfo().getId(), cartLine.getQuantity());
                     }
             );
-        }
+        }*/
+         if (cartInfo != null) {
+             List<CartLineInfo> lines = cartInfo.getCartLines();
+             for (CartLineInfo line : lines) {
+                 this.updateProduct(line.getProductInfo().getId(), line.getQuantity());
+             }
+         }
      }
 }

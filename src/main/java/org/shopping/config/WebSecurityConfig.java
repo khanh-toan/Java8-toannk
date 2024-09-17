@@ -61,8 +61,11 @@ public class WebSecurityConfig{
                         .passwordParameter("password"))
                 .logout(logout -> logout
                         .logoutUrl("/admin/logout")
-                        .logoutSuccessUrl("/"));
-
+                        .logoutSuccessUrl("/"))
+                .rememberMe(rememberMe -> rememberMe
+                        .key("uniqueAndSecretKey")
+                        .tokenValiditySeconds(86400)
+                        .rememberMeParameter("remember-me"));
         return http.build();
     }
 }

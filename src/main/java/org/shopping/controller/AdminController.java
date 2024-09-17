@@ -62,7 +62,7 @@ public class AdminController {
         AccountInfoForm accountInfoForm = null;
         Account account = accountService.findByUserName(userDetails.getUsername());
 
-        System.out.println("Account!!!!!!!!!!: " + account);
+        System.out.println("Account!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: " + account.getId());
 
         accountInfoForm = new AccountInfoForm(account);
 
@@ -108,7 +108,7 @@ public class AdminController {
         return "redirect:accountInfo";
     }
 
-    @RequestMapping(value = {"/productImage"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/accountImage"}, method = RequestMethod.GET)
     public void accountImage(HttpServletRequest request, HttpServletResponse response, Model model,
                                @RequestParam("id") Integer id) throws IOException{
         Account fromAccountDB = null;
