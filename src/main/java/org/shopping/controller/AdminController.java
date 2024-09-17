@@ -4,11 +4,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.shopping.entity.Account;
+import org.shopping.entity.Product;
 import org.shopping.form.AccountChangePasswordForm;
 import org.shopping.form.AccountInfoForm;
 import org.shopping.service.AccountService;
+import org.shopping.service.ProductService;
 import org.shopping.service.UserDetailsServiceImpl;
 import org.shopping.validator.AccountInfoValidator;
+import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +34,7 @@ import java.util.Optional;
 public class AdminController {
 
     private final AccountService accountService;
+    private final ProductService productService;
     private final AccountInfoValidator accountInfoValidator;
     private final UserDetailsServiceImpl userDetailsService;
 
@@ -72,7 +76,7 @@ public class AdminController {
 
     @RequestMapping(value = { "/admin/accountInfo" }, method = RequestMethod.POST)
     public String userInfo(Model model,
-                           @ModelAttribute("accountInform") @Validated AccountInfoForm accountInfoForm, BindingResult result,
+                           @ModelAttribute("accountInfoForm") @Validated AccountInfoForm accountInfoForm, BindingResult result,
                            final RedirectAttributes redirectAttributes) {
         if (result.hasErrors()){
             return "accountInfo";
@@ -94,11 +98,11 @@ public class AdminController {
             );
 
             SecurityContextHolder.getContext().setAuthentication(newAuth);
-
-        }catch (IOException e) {
+        }catch (Exception e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             String message = rootCause.getMessage();
             model.addAttribute("error", message);
+            model.addAttribute("hasErrors", true);
             return "accountInfo";
         }
         return "redirect:accountInfo";
@@ -135,7 +139,7 @@ public class AdminController {
         Account account = accountService.findByUserName(userDetails.getUsername());
         accountChangePassword = new AccountChangePasswordForm(account);
         model.addAttribute("accountChangePasswordForm", accountChangePassword);
-        return "accountInfo";
+        return "changePassword";
     }
 
     @PostMapping(value = { "/admin/changePassword"})
@@ -143,29 +147,34 @@ public class AdminController {
                                  @ModelAttribute("accountChangePasswordForm") @Validated AccountChangePasswordForm accountChangePasswordForm,
                                  BindingResult result, final RedirectAttributes redirectAttributes) {
         if(result.hasErrors()){
-            return "accountInfo";
+            return "changePassword";
         }
         try {
             accountService.updatePassword(accountChangePasswordForm);
+            redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully!");
         } catch (Exception e) {
             System.out.println("ALTER");
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             String message = rootCause.getMessage();
-            model.addAttribute("errorMessage", message);
-            return "accountInfo";
+            model.addAttribute("error", message);
+            return "changePassword";
         }
-        return "redirect:accountInfo";
+        return "redirect:changePassword";
     }
 
-    @RequestMapping(value = { "/admin/accountManager" }, method = RequestMethod.GET)
+    /*@RequestMapping(value = { "/admin/accountManager" }, method = RequestMethod.GET)
     public String listUserHandler(Model model,
                                   @RequestParam(value = "name", required = false,defaultValue = "") String likeName,
                                   @RequestParam(value = "page", required = false, defaultValue = "1") int currentPage,
                                   @RequestParam(value = "size", required = false, defaultValue = "8") int size) {
-
-        return "";
-    }
-
+        Page<Product> productPage = productService.getProducts(likeName, currentPage, size);
+        model.addAttribute("paginationPages", productPage);
+        model.addAttribute("searchName", likeName);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", productPage.getTotalPages()); // Thêm tổng số trang
+        model.addAttribute("totalItems", productPage.getTotalElements()); // Thêm tổng số sản phẩm
+        return "productList";
+    }*/
 
 
 }

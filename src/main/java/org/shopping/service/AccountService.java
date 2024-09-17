@@ -2,10 +2,14 @@ package org.shopping.service;
 
 import lombok.RequiredArgsConstructor;
 import org.shopping.common.ConflictException;
+import org.shopping.common.RecordNotfoundException;
 import org.shopping.entity.Account;
 import org.shopping.form.AccountChangePasswordForm;
 import org.shopping.repository.AccountRepository;
 import org.shopping.utils.ConvertUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -28,7 +33,7 @@ public class AccountService {
 
     public void updateProfile(Account account) {
         Optional<Account> findAccount = accountRepository.findById(account.getId());
-        if (findAccount.isPresent()) {
+        if (findAccount.isPresent()){
             Account accountFromDb = findAccount.get();
             accountFromDb.setUsername(account.getUsername());
             accountFromDb.setAddress(account.getAddress());
@@ -65,15 +70,17 @@ public class AccountService {
         if (DbAccount.isEmpty()){
             throw new UsernameNotFoundException("Don't exist account");
         }
-        String hashedPassword = passwordEncoder.encode(DbAccount.get().getPassword());
-        if (!accountChangePasswordForm.getCurrentPassword().equals(hashedPassword)){
-            throw new ConflictException("Password don't correct");
+
+        Account existingAccount = DbAccount.get();
+        // Kiểm tra mật khẩu hiện tại
+        if (!passwordEncoder.matches(accountChangePasswordForm.getCurrentPassword(), existingAccount.getPassword())) {
+            throw new ConflictException("Current password is incorrect");
         }
 
-        Account newAccount = DbAccount.get();
-        newAccount.setUpdatedAt(new Date());
-        newAccount.setPassword(accountChangePasswordForm.getNewPassword());
-
-        accountRepository.save(newAccount);
+        // Mã hóa mật khẩu mới trước khi lưu
+        String newHashedPassword = passwordEncoder.encode(accountChangePasswordForm.getNewPassword());
+        existingAccount.setUpdatedAt(new Date());
+        existingAccount.setPassword(newHashedPassword);
+        accountRepository.save(existingAccount);
     }
 }

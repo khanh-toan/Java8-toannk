@@ -3,9 +3,19 @@
      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" >
     <a th:href="@{/}">Home</a>
     |
-    <a th:href="@{/productList}">
-        Product List
-    </a>
+    <th:block sec:authorize="hasAnyRole('ROLE_EMPLOYEE')">
+        <a th:href="@{/productList}">
+            Product List
+        </a>
+        |
+    </th:block>
+    |
+    <th:block sec:authorize="hasAnyRole('ROLE_MANAGER')">
+        <a th:href="@{/admin/productList}">
+            Product Management
+        </a>
+        |
+    </th:block>
     |
     <a th:href="@{/shoppingCart}">
         My Cart

@@ -162,7 +162,6 @@
         #updateModal button:hover, #changePasswordModal button:hover {
             background-color: #ff6600;
         }
-
     </style>
 </head>
 <body>
@@ -174,15 +173,16 @@
 <!-- Buttons for Profile and Change Password -->
 <div>
     <button class="button-update-sc" onclick="openModal()">Update Profile</button>
-    <button class="button-change-password" onclick="openPasswordModal()">Change Password</button>
+    <a class="button-change-password" th:href="@{/admin/changePassword}">Change Password</a>
 </div>
 
 <!-- Update Profile Modal -->
-<div id="updateModal">
+<div id="updateModal" style="display:none;">
     <h2>Update Profile</h2>
     <form th:object="${accountInfoForm}" th:action="@{/admin/accountInfo}" method="post" enctype="multipart/form-data">
+        <!-- Các trường form khác -->
         <div>
-            <input type="text" hidden="hidden" th:field="*{id}">
+            <input readonly style="background-color: red" type="text" th:field="*{id}">
         </div>
         <div>
             <label for="username">User Name:</label>
@@ -205,72 +205,33 @@
             <button type="submit">Save</button>
             <button type="button" onclick="closeModal()">Cancel</button>
         </div>
-    </form>
-</div>
-
-<!-- Change Password Modal -->
-<div id="changePasswordModal">
-    <h2>Change Password</h2>
-    <form th:object="${accountChangePasswordForm}" th:action="@{/admin/changePassword}" method="post" onsubmit="return validatePassword()">
-        <div>
-            <label for="id">Id:</label>
-            <input type="text" id="id" th:field="*{id}">
-        </div>
-        <div>
-            <label for="currentPassword">Current Password:</label>
-            <input type="password" id="currentPassword" th:field="*{currentPassword}" required>
-        </div>
-        <div>
-            <label for="newPassword">New Password:</label>
-            <input type="password" id="newPassword" th:field="*{newPassword}" required>
-        </div>
-        <div>
-            <label for="confirmPassword">Confirm New Password:</label>
-            <input type="password" id="confirmPassword" th:field="*{confirmNewPassword}" required>
-        </div>
-
-        <!-- Hiển thị thông báo lỗi -->
-        <div id="passwordError" style="color:red; display:none;">
-            Confirm Password does not match the New Password.
-        </div>
-
-        <div style="margin-top:10px;">
-            <button type="submit" >Change Password</button>
-            <button type="button" onclick="closePasswordModal()">Cancel</button>
+        <div th:if="${error}" style="font-weight: bold; color: red">
+            <p th:text="${error}" class="error-message"></p>
         </div>
     </form>
 </div>
 
 <script>
     // Functions to handle opening and closing modals
+
+    window.onload = function() {
+        // Kiểm tra nếu có lỗi từ controller và mở modal
+        const hasErrors = /*[[${hasErrors}]]*/ false;  // Render biến Thymeleaf thành giá trị boolean trong JavaScript
+        if (hasErrors === true) {
+            openModal();  // Mở modal nếu có lỗi
+        }
+    };
+
+    // Hàm mở modal khi người dùng click vào nút "Update Profile"
     function openModal() {
         document.getElementById('updateModal').style.display = 'block';
     }
 
+    // Hàm đóng modal
     function closeModal() {
         document.getElementById('updateModal').style.display = 'none';
     }
 
-    function openPasswordModal() {
-        document.getElementById('changePasswordModal').style.display = 'block';
-    }
-
-    function closePasswordModal() {
-        document.getElementById('changePasswordModal').style.display = 'none';
-    }
-
-    function validatePassword() {
-        const newPassword = document.getElementById('newPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-
-        if (newPassword !== confirmPassword) {
-            document.getElementById('passwordError').style.display = 'block';
-            return false;
-        }
-
-        document.getElementById('passwordError').style.display = 'none';
-        return true;
-    }
 </script>
 
 <div class="account-container">
