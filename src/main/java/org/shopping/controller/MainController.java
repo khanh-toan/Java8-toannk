@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.shopping.entity.Product;
 import org.shopping.model.ProductInfo;
 import org.shopping.service.ProductService;
+import org.shopping.utils.ConvertUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,7 +31,10 @@ public class MainController {
 
         Page<Product> productPage = productService.getProducts(likeName, currentPage, size);
 
-        model.addAttribute("paginationPages", productPage);
+        List<Product> list = new ArrayList<>();
+        list = ConvertUtils.convertList(productPage.getContent(), Product.class);
+
+        model.addAttribute("paginationPages", list);
         model.addAttribute("searchName", likeName);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", productPage.getTotalPages()); // Thêm tổng số trang
