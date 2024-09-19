@@ -12,7 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 public class CartInfo {
     private int orderNum;
-
     private CustomerInfo customerInfo;
 
     private final List<CartLineInfo> cartLines = new ArrayList<>();
@@ -23,6 +22,10 @@ public class CartInfo {
                 .findFirst()
                 .orElse(null);
     }
+    public boolean isValidCustomer() {
+        return this.customerInfo != null && this.customerInfo.isValid();
+    }
+
      public void addProduct(ProductInfo productInfo, int quantity){
         CartLineInfo lineInfo = this.findLineByProductId(productInfo.getId());
         if(lineInfo == null){
@@ -68,6 +71,12 @@ public class CartInfo {
      }
 
      public void updateQuantity(CartInfo cartInfo){
+         if (cartInfo != null) {
+             List<CartLineInfo> lines = cartInfo.getCartLines();
+             for (CartLineInfo line : lines) {
+                 this.updateProduct(line.getProductInfo().getId(), line.getQuantity());
+             }
+         }
         /*if (cartInfo != null){
             cartInfo.cartLines.forEach(
                     cartLine -> {
@@ -75,11 +84,11 @@ public class CartInfo {
                     }
             );
         }*/
-         if (cartInfo != null) {
-             List<CartLineInfo> lines = cartInfo.getCartLines();
-             for (CartLineInfo line : lines) {
-                 this.updateProduct(line.getProductInfo().getId(), line.getQuantity());
-             }
-         }
      }
+
+    public Double getAmountTotal() {
+        return this.cartLines.stream()
+                .mapToDouble(CartLineInfo::getAmount)
+                .sum();
+    }
 }

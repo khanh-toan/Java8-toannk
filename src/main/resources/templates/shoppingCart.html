@@ -21,6 +21,10 @@
                 <li><img class="product-image"
                          th:src="@{|/productImage?id=${cartLineInfo.productInfo.id}|}"  alt=""/>
                 </li>
+                <span th:utext="${cartLineInfo.productInfo.code}"></span>
+                <input type="hidden"
+                       th:name="|cartLines[${varStatus.index}].productInfo.id|"
+                       th:value="${cartLineInfo.productInfo.id}" />
                 <li>Code:
                     <span th:utext="${cartLineInfo.productInfo.code}"></span>
                     <input type="hidden"

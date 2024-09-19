@@ -46,7 +46,7 @@ public class WebSecurityConfig{
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/login", "/admin/logout", "/403", "/styles.css")
                         .permitAll() // Cho phép truy cập mà không cần xác thực
-                        .requestMatchers("/admin/orderList", "/admin/order", "/admin/accountInfo", "/admin/accountInfo")
+                        .requestMatchers("/admin/orderList", "/admin/order", "/admin/accountInfo")
                         .hasAnyRole("EMPLOYEE", "MANAGER")
                         .requestMatchers("/admin/product")
                         .hasRole("MANAGER")

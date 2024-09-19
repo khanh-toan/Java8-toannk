@@ -32,4 +32,18 @@ public class OrderInfo {
         order.setPhone(this.customerPhone);
         return order;
     }
+
+    public OrderInfo(int id, Date orderDate, int orderNum,
+                     double amount, String customerName, String customerAddress,
+                     String customerEmail, String customerPhone) {
+        this.id = id;
+        this.orderDate = orderDate;
+        this.orderNum = orderNum;
+        this.amount = amount;
+
+        this.customerName = customerName;
+        this.customerAddress = customerAddress;
+        this.customerEmail = customerEmail;
+        this.customerPhone = customerPhone;
+    }
 }

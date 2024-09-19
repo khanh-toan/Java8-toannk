@@ -5,17 +5,25 @@ import jakarta.servlet.http.HttpServletResponse;
 import jdk.jshell.execution.Util;
 import lombok.RequiredArgsConstructor;
 import org.shopping.entity.Account;
+import org.shopping.entity.Order;
 import org.shopping.entity.Product;
+import org.shopping.form.CustomerForm;
 import org.shopping.model.CartInfo;
+import org.shopping.model.CustomerInfo;
+import org.shopping.model.OrderInfo;
 import org.shopping.model.ProductInfo;
 import org.shopping.service.AccountService;
+import org.shopping.service.OrderService;
 import org.shopping.service.ProductService;
 import org.shopping.utils.CartsUtils;
 import org.shopping.utils.ConvertUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +34,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MainController {
     private final ProductService productService;
-    /*private final AccountService accountService;*/
+    private final OrderService orderService;
 
     @GetMapping("/productList")
     public String listUserHandler(Model model,
@@ -38,7 +46,7 @@ public class MainController {
             currentPage = 1;
         }
 
-        Page<Product> productPage = productService.getProducts(likeName, currentPage, size);
+        Page<Product> productPage = productService.getProducts(likeName, true, currentPage, size);
 
         List<Product> list = new ArrayList<>();
         list = ConvertUtils.convertList(productPage.getContent(), Product.class);
@@ -91,19 +99,99 @@ public class MainController {
         return "redirect:/shoppingCart";
     }
 
-    @GetMapping(value = { "/shoppingCart" })
+    @GetMapping(value = { "/shoppingCart"})
     public String shoppingCartHandler(HttpServletRequest request, Model model) {
         CartInfo myCart = CartsUtils.getCartInSession(request);
         model.addAttribute("cartForm", myCart);
         return "shoppingCart";
     }
 
-    @PostMapping(value = { "/shoppingCart" })
+    @PostMapping(value = { "/shoppingCart"})
     public String shoppingCartHandler(HttpServletRequest request, Model model, @ModelAttribute("cartForm") CartInfo cartInfo) {
         CartInfo myCart = CartsUtils.getCartInSession(request);
-        cartInfo.updateQuantity(myCart);
+        myCart.updateQuantity(cartInfo);
         model.addAttribute("cartForm", myCart);
         return "redirect:/shoppingCart";
+    }
+
+    @GetMapping(value = {"/shoppingCartCustomer"})
+    public String shoppingCartCustomerForm(HttpServletRequest request, Model model){
+        CartInfo cartInfo = CartsUtils.getCartInSession(request);
+        if (cartInfo.isEmpty()){
+            return "redirect:/shoppingCart";
+        }
+        CustomerInfo customerInfo = cartInfo.getCustomerInfo();
+        CustomerForm customerForm = new CustomerForm(customerInfo);
+        model.addAttribute("customerForm", customerForm);
+        return "shoppingCartCustomer";
+    }
+
+    @PostMapping(value = "/shoppingCartCustomer")
+    public String shoppingCartCustomer(HttpServletRequest request,
+                                       Model model,
+                                       @ModelAttribute("customerForm") @Validated CustomerForm customerForm,
+                                       BindingResult result,
+                                       final RedirectAttributes redirectAttributes){
+        if (result.hasErrors()) {
+            customerForm.setValid(false);
+            // Forward tới trang nhập lại.
+            return "shoppingCartCustomer";
+        }
+        customerForm.setValid(true);
+        CartInfo cartInfo = CartsUtils.getCartInSession(request);
+        CustomerInfo customerInfo = new CustomerInfo(customerForm);
+        cartInfo.setCustomerInfo(customerInfo);
+        return "redirect:/shoppingCartConfirmation";
+    }
+
+    @RequestMapping(value = { "/shoppingCartConfirmation" }, method = RequestMethod.GET)
+    public String shoppingCartConfirmationReview(HttpServletRequest request, Model model){
+        CartInfo cartInfo = CartsUtils.getCartInSession(request);
+        if (cartInfo.isEmpty()) {
+            return "redirect:/shoppingCart";
+        } else if (!cartInfo.isValidCustomer()) {
+            return "redirect:/shoppingCartCustomer";
+        }
+        model.addAttribute("myCart", cartInfo);
+        return "shoppingCartConfirmation";
+    }
+
+    @RequestMapping(value = { "/shoppingCartConfirmation" }, method = RequestMethod.POST)
+    public String shoppingCartConfirmationSave(HttpServletRequest request, Model model) {
+        CartInfo cartInfo = CartsUtils.getCartInSession(request);
+        if (cartInfo.isEmpty()) {
+            return "redirect:/shoppingCart";
+        } else if (!cartInfo.isValidCustomer()) {
+            return "redirect:/shoppingCartCustomer";
+        }
+        try {
+            orderService.addOrder(cartInfo);
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "shoppingCartConfirmation";
+        }
+        // Xóa giỏ hàng khỏi session.
+        CartsUtils.removeCartInSession(request);
+        // Lưu thông tin đơn hàng cuối đã xác nhận mua.
+        CartsUtils.storeLastOrderedCartInSession(request, cartInfo);
+        return "redirect:/shoppingCartFinalize";
+    }
+
+    @RequestMapping(value = { "/shoppingCartFinalize" }, method = RequestMethod.GET)
+    public String shoppingCartFinalize(HttpServletRequest request, Model model) {
+        CartInfo lastOrderedCart = CartsUtils.getLastOrderedCartInSession(request);
+        if (lastOrderedCart == null) {
+            return "redirect:/shoppingCart";
+        }
+        model.addAttribute("lastOrderedCart", lastOrderedCart);
+        return "shoppingCartFinalize";
+    }
+
+    @GetMapping(value = "/admin/order")
+    public String orderView(Model model, @RequestParam("orderId") Integer orderId){
+        OrderInfo orderInfo = orderService.findOrderDetailById(orderId);
+        model.addAttribute("orderInfo", orderInfo);
+        return "order";
     }
 
 }

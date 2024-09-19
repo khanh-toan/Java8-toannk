@@ -1,15 +1,19 @@
 package org.shopping.service;
 
 import lombok.RequiredArgsConstructor;
+import org.shopping.common.ConflictException;
+import org.shopping.common.NameAlreadyExistsException;
 import org.shopping.entity.Account;
 import org.shopping.entity.Product;
 import org.shopping.repository.ProductRepository;
+import org.shopping.utils.ConvertUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -17,9 +21,9 @@ import java.util.Optional;
 public class ProductService {
     private final ProductRepository productRepository;
 
-    public Page<Product> getProducts(String likeName, int currentPage, int size) {
+    public Page<Product> getProducts(String likeName, Boolean active, int currentPage, int size) {
         Pageable pageable = PageRequest.of(currentPage - 1, size);
-        Page<Product> products = productRepository.search(likeName, pageable);
+        Page<Product> products = productRepository.search(likeName, active, pageable);
         return products;
     }
 
@@ -40,5 +44,28 @@ public class ProductService {
             }
         }
         return null;
+    }
+
+    public void updateProduct(Product product) {
+        Optional<Product> productFromDB = productRepository.findById(product.getId());
+        if (productFromDB.isPresent()){
+            Product productUpdate = productFromDB.get();
+            productUpdate.setUpdatedAt(new Date());
+            productUpdate.setName(product.getName());
+            productUpdate.setIsDeleted(product.getIsDeleted());
+            productUpdate.setPrice(product.getPrice());
+            if (product.getImage() != null){
+                productUpdate.setImage(product.getImage());
+            }
+            productRepository.save(productUpdate);
+        }
+    }
+
+    public void createProduct(Product createProduct) {
+        Product exception = productRepository.findByCode(createProduct.getCode());
+        if(exception != null){
+            throw new NameAlreadyExistsException("Code");
+        }
+        productRepository.save(createProduct);
     }
 }

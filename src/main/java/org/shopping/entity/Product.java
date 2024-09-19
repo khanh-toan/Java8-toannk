@@ -17,26 +17,18 @@ import java.util.List;
 public class Product extends BaseEntity{
     @Serial
     private static final long serialVersionUID = 1L;
-
     @Column(name = "Code")
     private String code;
-
     @Column(name = "Name")
     private String name;
-
     @Column(name = "Price")
     private Double price;
-
     @Column(name = "Description")
     private String description;
-
-    @Column(name = "Image")
-    @Lob
+    @Column(name = "Image", length = Integer.MAX_VALUE, nullable = true)
     private byte[] image;
-
     @Column(name = "Is_delete")
     private Boolean isDeleted;
-
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderDetails> orderDetailsList;
 }

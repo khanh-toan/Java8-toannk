@@ -9,28 +9,23 @@
         </a>
         |
     </th:block>
-    |
     <th:block sec:authorize="hasAnyRole('ROLE_MANAGER')">
-        <a th:href="@{/admin/productList}">
+        <a th:href="@{/admin/manageAccount}">
+            Account Management
+        </a>
+        |
+        <a th:href="@{/admin/productManagement}">
             Product Management
         </a>
         |
     </th:block>
-    |
     <a th:href="@{/shoppingCart}">
         My Cart
     </a>
     |
     <th:block sec:authorize="hasAnyRole('ROLE_MANAGER','ROLE_EMPLOYEE')">
-        <a th:href="@{/admin/orderList}">
+        <a th:href="@{/orderList}">
             Order List
-        </a>
-        |
-    </th:block>
-
-    <th:block sec:authorize="hasRole('ROLE_MANAGER')">
-        <a th:href="@{/admin/product}">
-            Create Product
         </a>
         |
     </th:block>

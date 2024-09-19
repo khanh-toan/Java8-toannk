@@ -4,14 +4,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.shopping.entity.Account;
+import org.shopping.entity.Order;
 import org.shopping.entity.Product;
 import org.shopping.form.AccountChangePasswordForm;
+import org.shopping.form.AccountDTO;
 import org.shopping.form.AccountInfoForm;
+import org.shopping.form.ProductForm;
+import org.shopping.model.OrderInfo;
 import org.shopping.service.AccountService;
+import org.shopping.service.OrderService;
 import org.shopping.service.ProductService;
 import org.shopping.service.UserDetailsServiceImpl;
+import org.shopping.utils.ConvertUtils;
 import org.shopping.validator.AccountInfoValidator;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +35,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -37,6 +48,7 @@ public class AdminController {
     private final ProductService productService;
     private final AccountInfoValidator accountInfoValidator;
     private final UserDetailsServiceImpl userDetailsService;
+    private final OrderService orderService;
 
     @InitBinder
     public void myInitBinder(WebDataBinder dataBinder) {
@@ -162,19 +174,164 @@ public class AdminController {
         return "redirect:changePassword";
     }
 
-    /*@RequestMapping(value = { "/admin/accountManager" }, method = RequestMethod.GET)
+    @GetMapping(value = "/orderList")
+    public String orderList(Model model,
+                            @RequestParam(value = "name", required = false,defaultValue = "") String likeName,
+                            @RequestParam(value = "page", required = false, defaultValue = "1") int currentPage,
+                            @RequestParam(value = "size", required = false, defaultValue = "8") int size) {
+        // Đảm bảo currentPage không nhỏ hơn 1
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Account account = accountService.findByUserName(userDetails.getUsername());
+
+        Page<Order> orderPage = orderService.getOrders(likeName, currentPage, size, account.getId(), account.getIsDeleted());
+
+        List<Order> list = new ArrayList<>();
+        list = ConvertUtils.convertList(orderPage.getContent(), Order.class);
+
+        model.addAttribute("paginationPages", list);
+        model.addAttribute("searchName", likeName);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", orderPage.getTotalPages()); // Thêm tổng số trang
+        model.addAttribute("totalItems", orderPage.getTotalElements()); // Thêm tổng số sản phẩm
+        return "orderList";
+    }
+
+    @GetMapping(value = { "/admin/productManagement" })
     public String listUserHandler(Model model,
                                   @RequestParam(value = "name", required = false,defaultValue = "") String likeName,
                                   @RequestParam(value = "page", required = false, defaultValue = "1") int currentPage,
                                   @RequestParam(value = "size", required = false, defaultValue = "8") int size) {
-        Page<Product> productPage = productService.getProducts(likeName, currentPage, size);
+        Page<Product> productPage = productService.getProducts(likeName, null, currentPage, size);
         model.addAttribute("paginationPages", productPage);
         model.addAttribute("searchName", likeName);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", productPage.getTotalPages()); // Thêm tổng số trang
         model.addAttribute("totalItems", productPage.getTotalElements()); // Thêm tổng số sản phẩm
-        return "productList";
-    }*/
+        return "admin/productManagement";
+    }
 
+    @GetMapping(value = "/admin/updateProduct")
+    public String updateProduct(Model model, @RequestParam("id") Integer id){
+        ProductForm productForm = null;
 
+        if (id != null) {
+            Optional<Product> productFromDB = productService.selectById(id);
+            if (productFromDB.isPresent()) {
+                Product product = productFromDB.get();
+                productForm = new ProductForm(product);
+            }
+        }
+        if (productForm == null) {
+            productForm = new ProductForm();
+            productForm.setNewProduct(true);
+        }
+        model.addAttribute("productForm", productForm);
+        return "admin/product";
+    }
+
+    @PostMapping(value = "/admin/updateProduct")
+    public String updateProduct(Model model, @ModelAttribute("productForm") @Validated ProductForm productForm,
+                                BindingResult result, final RedirectAttributes redirectAttributes){
+        if (result.hasErrors()) {
+            return "admin/product";
+        }
+        try {
+            productForm.validateInput();
+            Product updateProduct = productForm.getProduct();
+            productService.updateProduct(updateProduct);
+        } catch (Exception e) {
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            String message = rootCause.getMessage();
+            model.addAttribute("errorMessage", message);
+            return "admin/product";
+        }
+        return "redirect:productManagement";
+    }
+
+    @GetMapping(value = "/admin/createProduct")
+    public String createProduct(Model model){
+        ProductForm productForm = new ProductForm();
+        model.addAttribute("productForm", productForm);
+        return "admin/createProduct";
+    }
+
+    @PostMapping(value = "/admin/createProduct")
+    public String createProduct(Model model, @ModelAttribute("productForm") ProductForm productForm,
+                                BindingResult result, final RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            return "admin/createProduct";
+        }
+        try {
+            productForm.validateInput();
+            Product createProduct = productForm.getProduct();
+            productService.createProduct(createProduct);
+        } catch (Exception e) {
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            String message = rootCause.getMessage();
+            model.addAttribute("errorMessage", message);
+            return "admin/createProduct";
+        }
+        return "redirect:productManagement";
+    }
+
+    @GetMapping(value = "/admin/manageAccount")
+    public String listAccount(Model model,
+                              @RequestParam(value = "name", required = false,defaultValue = "") String likeName,
+                              @RequestParam(value = "page", required = false, defaultValue = "1") int currentPage,
+                              @RequestParam(value = "size", required = false, defaultValue = "8") int size){
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        Page<Account> accountPage = accountService.getAccounts(likeName, null, currentPage, size);
+
+        List<Account> list = ConvertUtils.convertList(accountPage.getContent(), Account.class);
+
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        List<Account> filterList = list.stream()
+                .filter(account -> !account.getUsername().equals(userDetails.getUsername()))
+                .toList();
+
+        model.addAttribute("paginationPages", filterList);
+        model.addAttribute("searchName", likeName);
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", accountPage.getTotalPages()); // Thêm tổng số trang
+        model.addAttribute("totalItems", accountPage.getTotalElements()); // Thêm tổng số sản phẩm
+        return "admin/accountManagement";
+    }
+
+    @PostMapping(value = "/admin/createAccount")
+    public ResponseEntity<?> createAccount(Model model, @ModelAttribute AccountDTO accountDTO) {
+        // Xử lý dữ liệu accountDTO nhận được từ form
+        System.out.println("Username: " + accountDTO.getUsername());
+        System.out.println("Password: " + accountDTO.getPassword());
+        System.out.println("Status: " + accountDTO.getStatus());
+
+        try {
+            accountService.saveAccount(accountDTO);
+            return ResponseEntity.ok("Account created successfully!");
+        } catch (Exception e) {
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            String message = rootCause.getMessage();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+        }
+    }
+
+    @PostMapping(value = "/admin/changeStatus")
+    public ResponseEntity<?> changeStatus(@RequestParam("id") Integer id,
+                                          @RequestParam("status") Boolean status){
+        try {
+            accountService.updateAccountStatus(id, status);
+            return ResponseEntity.ok("Status updated successfully!");
+        } catch (Exception e) {
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            String message = rootCause.getMessage();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+        }
+    }
 }

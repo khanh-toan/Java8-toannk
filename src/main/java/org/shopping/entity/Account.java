@@ -23,19 +23,14 @@ public class Account extends BaseEntity{
 
     @Column(name = "ENCRYTED_PASSWORD")
     private String password;
-
     @Column(name = "USER_ROLE")
     private String role;
-
     @Column(name = "address")
     private String address;
-
     @Column(name = "description")
     private String description;
-
     @Column(name = "Image", length = Integer.MAX_VALUE, nullable = true)
     private byte[] image;
-
     @Column(name = "IS_DELETED")
     private Boolean isDeleted;
 }

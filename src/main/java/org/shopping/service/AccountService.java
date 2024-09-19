@@ -2,9 +2,12 @@ package org.shopping.service;
 
 import lombok.RequiredArgsConstructor;
 import org.shopping.common.ConflictException;
+import org.shopping.common.NameAlreadyExistsException;
 import org.shopping.common.RecordNotfoundException;
 import org.shopping.entity.Account;
+import org.shopping.entity.Product;
 import org.shopping.form.AccountChangePasswordForm;
+import org.shopping.form.AccountDTO;
 import org.shopping.repository.AccountRepository;
 import org.shopping.utils.ConvertUtils;
 import org.springframework.data.domain.Page;
@@ -17,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -27,8 +29,7 @@ public class AccountService {
     private final PasswordEncoder passwordEncoder;
 
     public Account findByUserName(String username) {
-        Account account = accountRepository.findByUsername(username);
-        return account;
+        return accountRepository.findByUsername(username);
     }
 
     public void updateProfile(Account account) {
@@ -82,5 +83,43 @@ public class AccountService {
         existingAccount.setUpdatedAt(new Date());
         existingAccount.setPassword(newHashedPassword);
         accountRepository.save(existingAccount);
+    }
+
+    public Integer findIdByUserDetail(){
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Account account = accountRepository.findByUsername(userDetails.getUsername());
+        if (account != null){
+            return account.getId();
+        }
+        return null;
+    }
+
+    public Page<Account> getAccounts(String likeName, Boolean active, int currentPage, int size) {
+        Pageable pageable = PageRequest.of(currentPage - 1, size);
+        return accountRepository.search(likeName, active, pageable);
+    }
+
+    public void saveAccount(AccountDTO accountDTO) {
+        Account existAccount = accountRepository.findByUsername(accountDTO.getUsername());
+        if (existAccount != null){
+            throw new NameAlreadyExistsException("Username of new account");
+        }else {
+            Account newAccount = new Account();
+            String newPassword = passwordEncoder.encode(accountDTO.getPassword());
+            newAccount.setUsername(accountDTO.getUsername());
+            newAccount.setPassword(newPassword);
+            newAccount.setRole(accountDTO.getRole());
+            newAccount.setIsDeleted(accountDTO.getStatus());
+            newAccount.setCreatedAt(new Date());
+
+            accountRepository.save(newAccount); // Lưu tài khoản mới
+        }
+    }
+    public void updateAccountStatus(Integer accountId, boolean status) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RecordNotfoundException("Account not found"));
+
+        account.setIsDeleted(status);  // Cập nhật trạng thái
+        accountRepository.save(account);  // Lưu tài khoản đã cập nhật
     }
 }

@@ -11,7 +11,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductRepository extends BaseRepository<Product, Integer> {
 
-    @Query("select p from Product  p where" +
-            "(:likeName is null or lower(p.code) like lower(concat('%', :likeName, '%')))")
-    Page<Product> search(@Param("likeName") String likeName, Pageable pageable);
+    @Query("select p from Product p where" +
+            "(:likeName is null or lower(p.code) like lower(concat('%', :likeName, '%'))) and" +
+            "(:active is null or  p.isDeleted = :active)")
+    Page<Product> search(@Param("likeName") String likeName,
+                         @Param("active") Boolean active,
+                         Pageable pageable);
+
+    Product findByCode(String code);
 }

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/styles.css}">
+</head>
+<body>
+<th:block th:insert="~{/_header}"></th:block>
+<th:block th:insert="~{/_menu}"></th:block>
+<div class="page-title">Product</div>
+<form th:object="${productForm}" th:action="@{/admin/createProduct}" method="POST" enctype="multipart/form-data">
+    <table style="text-align:left;">
+        <tr>
+            <td>Code *</td>
+            <td>
+                <input type="text" th:field="*{code}" />
+            </td>
+        </tr>
+        <tr>
+            <td>Name *</td>
+            <td><input th:field="*{name}" /></td>
+        </tr>
+        <tr>
+            <td>Price *</td>
+            <td><input th:field="*{price}" /></td>
+        </tr>
+        <tr>
+            <td>Status *</td>
+            <td>
+                <input type="radio" th:field="*{delete}" th:value="true" id="active" />
+                <label for="active">Active</label>
+                <input type="radio" th:field="*{delete}" th:value="false" id="inactive" />
+                <label for="inactive">Inactive</label>
+            </td>
+        </tr>
+        <tr>
+            <td>Image</td>
+            <td>
+                <img th:src="@{|/productImage?id=${productForm.id}|}" style="width:200px; height: 200px"/>
+            </td>
+        </tr>
+        <tr>
+            <td>Upload Image</td>
+            <td><input type="file" th:field="*{fileData}" /></td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <input type="submit" value="Submit" />
+                <input type="reset" value="Reset" />
+            </td>
+        </tr>
+    </table>
+    <div th:if="${errorMessage}" style="font-weight: bold; color: red">
+        <p th:text="${errorMessage}" class="error-message"></p>
+    </div>
+</form>
+<th:block th:insert="~{/_footer}"></th:block>
+</body>
+</html>

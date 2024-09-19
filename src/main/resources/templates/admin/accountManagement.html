@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Account List</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/styles.css}">
+</head>
+<body>
+<th:block th:insert="~{/_header}"></th:block>
+<th:block th:insert="~{/_menu}"></th:block>
+
+<div class="page-title">Account List</div>
+
+<!-- Nút "Create Account" -->
+<div class="create-account-container">
+    <a href="javascript:void(0);" class="create-account-link" onclick="toggleCreateAccountForm()">Create Account</a>
+</div>
+
+<div>Total Account Count: <span th:utext="${paginationPages.size()}"></span></div>
+
+<table style="width:100%">
+    <tr>
+        <th>Account ID</th>
+        <th>Username</th>
+        <th>Status</th>
+        <th>Role</th>
+        <th>Created At</th>
+        <th>Address</th>
+    </tr>
+    <tr th:each="accountInfo : ${paginationPages}">
+        <td th:utext="${accountInfo.id}"></td>
+        <td th:utext="${accountInfo.username}"></td>
+        <!-- Trạng thái tài khoản có thể thay đổi chỉ bằng cách click -->
+        <td>
+            <a th:if="${accountInfo.isDeleted}"
+               href="javascript:void(0);"
+               style="color:green;"
+               th:attr="data-id=${accountInfo.id}"
+               th:text="'Active'"
+               onclick="changeAccountStatus(this, false)"></a>
+
+            <a th:if="${!accountInfo.isDeleted}"
+               href="javascript:void(0);"
+               style="color:red;"
+               th:attr="data-id=${accountInfo.id}"
+               th:text="'Inactive'"
+               onclick="changeAccountStatus(this, true)"></a>
+        </td>
+        <th th:utext="${accountInfo.role}"></th>
+        <td th:utext="${#dates.format(accountInfo.createdAt,'dd-MM-yyyy HH:mm')}"></td>
+        <td th:utext="${accountInfo.address}"></td>
+    </tr>
+</table>
+
+<div>
+    <ul class="pagination">
+        <!-- Previous Page Link -->
+        <li th:if="${currentPage > 1}">
+            <a th:href="@{/accountList(page=${currentPage - 1}, name=${searchName})}">Previous</a>
+        </li>
+
+        <!-- Page Number Links -->
+        <li th:each="pageNumber : ${#numbers.sequence(1, totalPages)}"
+            th:classappend="${pageNumber == currentPage} ? 'active' : ''">
+            <a th:href="@{/accountList(page=${pageNumber}, name=${searchName})}" th:text="${pageNumber}"></a>
+        </li>
+
+        <!-- Next Page Link -->
+        <li th:if="${currentPage < totalPages}">
+            <a th:href="@{/accountList(page=${currentPage + 1}, name=${searchName})}">Next</a>
+        </li>
+    </ul>
+</div>
+<th:block th:insert="~{/_footer}"></th:block>
+
+<!-- Form tạo tài khoản (ẩn lúc đầu) -->
+<!-- Form tạo tài khoản (ẩn lúc đầu) -->
+<div id="createAccountForm" style="display:none; margin-top: 20px;">
+    <h3>Create Account</h3>
+
+    <!-- Hiển thị thông báo lỗi nếu có -->
+    <!--<div id="popupMessage" style="display: none; position: fixed; top: 20px; right: 20px; padding: 10px; background-color: lightgreen; color: black; border-radius: 5px; z-index: 1000;">
+        <span id="popupText"></span>
+    </div>-->
+
+    <form id="accountForm">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <label for="status">Status:</label><br>
+        <select id="status" name="status">
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+        </select><br><br>
+
+        <!-- Thêm lựa chọn cho Role -->
+        <label for="role">Role:</label><br>
+        <select id="role" name="role" required>
+            <option value="ROLE_EMPLOYEE">Employee</option>
+            <option value="ROLE_MANAGER">Manager</option>
+        </select><br><br>
+
+        <button type="submit">Create</button>
+    </form>
+</div>
+<!-- Hiển thị thông báo lỗi nếu có -->
+<div id="popupMessage" style="display: none; position: fixed; top: 20px; right: 20px; padding: 10px; background-color: lightgreen; color: black; border-radius: 5px; z-index: 1000;">
+    <span id="popupText"></span>
+</div>
+
+
+<script>
+    function toggleCreateAccountForm() {
+        const form = document.getElementById("createAccountForm");
+        if (form.style.display === "none" || form.style.display === "") {
+            form.style.display = "block";
+        } else {
+            form.style.display = "none";
+        }
+    }
+
+    function showPopup(message, type) {
+        const popup = document.getElementById("popupMessage");
+        const popupText = document.getElementById("popupText");
+
+        popupText.innerText = message;
+
+        // Thay đổi màu sắc dựa trên loại thông báo (thành công hoặc lỗi)
+        if (type === "success") {
+            popup.style.backgroundColor = "lightgreen";
+        } else if (type === "error") {
+            popup.style.backgroundColor = "lightcoral";
+        }
+
+        popup.style.display = "block";
+
+        // Ẩn popup sau 3 giây
+        setTimeout(function() {
+            popup.style.display = "none";
+        }, 3000);
+    }
+
+    document.getElementById("accountForm").addEventListener("submit", function(event) {
+        event.preventDefault();  // Ngăn chặn form gửi theo cách thông thường
+
+        const formData = new FormData(this);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/admin/createAccount", true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    // Thành công, hiển thị thông báo thành công
+                    showPopup("Account created successfully!", "success");
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000)
+                } else {
+                    // Lỗi, hiển thị thông báo lỗi
+                    const errorResponse = xhr.responseText;
+                    showPopup("Failed to create account: " + errorResponse, "error");
+                }
+            }
+        };
+        xhr.send(formData);
+    });
+
+    function changeAccountStatus(element, newStatus) {
+        const accountId = element.getAttribute("data-id");
+        console.log(accountId);
+        const xhr = new XMLHttpRequest();
+
+        xhr.open("POST", `/admin/changeStatus?id=${accountId}&status=${newStatus}`, true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4){
+                if(xhr.status === 200){
+                    if (newStatus){
+                        element.style.color = "red";
+                        element.innerText = "Inactive";
+                        element.setAttribute("onclick", `changeAccountStatus(this, false)`);
+                    }else {
+                        element.style.color = "green";
+                        element.innerText = "Active";
+                        element.setAttribute("onclick", `changeAccountStatus(this, true)`);
+                    }
+                    // Hiển thị thông báo thành công
+                    showPopup("Status updated successfully!", "success");
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000)
+                }else {
+                    // Hiển thị thông báo lỗi
+                    const errorResponse = xhr.responseText;
+                    showPopup("Failed to update status: " + errorResponse, "error");
+                }
+            }
+        };
+        xhr.send();
+    }
+</script>
+</body>
+</html>

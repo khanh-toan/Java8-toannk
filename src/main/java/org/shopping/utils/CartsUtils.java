@@ -20,6 +20,7 @@ public class CartsUtils {
 
     public static void storeLastOrderedCartInSession(HttpServletRequest request, CartInfo cartInfo) {
         request.getSession().setAttribute("lastOrderedCart", cartInfo);
+        System.out.println(cartInfo);
     }
 
     public static CartInfo getLastOrderedCartInSession(HttpServletRequest request) {

@@ -1,18 +1,21 @@
 package org.shopping.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.io.Serial;
+
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "order_details")
+@Data
 @AttributeOverride(name = "id", column = @Column(name = "id"
         , nullable = false, columnDefinition = "BIGINT UNSIGNED"))
 public class OrderDetails extends BaseEntity{
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Column(name = "AMOUNT")

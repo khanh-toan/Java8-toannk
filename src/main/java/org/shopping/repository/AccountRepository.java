@@ -15,6 +15,12 @@
 		Account findByUsername(String username);
 
 		@Query("Select a from Account a where a.username like %:name%")
-		Page<Account> findByUserName(String name,Pageable pageable);
+		Page<Account> findByUserName(String name, Pageable pageable);
 
-	}
+		@Query("select a from Account a where" +
+				"(:likeName is null or lower(a.username) like lower(concat('%', :likeName, '%'))) and" +
+				"(:active is null or  a.isDeleted = :active)")
+        Page<Account> search(@Param("likeName") String likeName,
+							 @Param("active") Boolean active,
+							 Pageable pageable);
+    }

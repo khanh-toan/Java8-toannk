@@ -46,6 +46,9 @@ public class Order extends BaseEntity implements Serializable {
     @Column(name = "IS_DELETED")
     private Boolean isDeleted;
 
+    @Column(name = "user_id")
+    private Integer userId;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderDetails> orderDetailsList;
 }
