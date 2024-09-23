@@ -16,7 +16,8 @@ public class ProductInfo extends SearchRequestDTO{
     private String code;
     private String description;
     private double price;
-    public boolean isDelete;
+    private boolean isDelete;
+    private Integer quantity;
 
     public ProductInfo(Product product) {
         this.code = product.getCode();
@@ -25,5 +26,6 @@ public class ProductInfo extends SearchRequestDTO{
         this.price = product.getPrice();
         this.description = product.getDescription();
         this.isDelete = product.getIsDeleted();
+        this.quantity = product.getQuantity();
     }
 }

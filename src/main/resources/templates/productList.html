@@ -229,8 +229,11 @@
 <div class="product-list">
     <div class="product-preview-container" th:each="prodInfo : ${paginationPages}">
         <ul>
-            <li><img class="product-image" style="width: 150px; height: 150px;"
-                     th:src="@{|/productImage?id=${prodInfo.id}|}" />
+            <li>
+                <a th:href="@{|/productDetail?id=${prodInfo.id}|}">
+                    <img class="product-image" style="width: 150px; height: 150px;"
+                         th:src="@{|/productImage?id=${prodInfo.id}|}" />
+                </a>
             </li>
             <li>Code: <span th:utext="${prodInfo.code}"></span></li>
             <li>Name: <span th:utext="${prodInfo.name}"></span></li>

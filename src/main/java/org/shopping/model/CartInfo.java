@@ -3,6 +3,7 @@ package org.shopping.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.shopping.common.ConflictException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,6 @@ import java.util.List;
 public class CartInfo {
     private int orderNum;
     private CustomerInfo customerInfo;
-
     private final List<CartLineInfo> cartLines = new ArrayList<>();
 
     private CartLineInfo findLineByProductId(int id){
@@ -50,6 +50,8 @@ public class CartInfo {
              }else{
                  lineInfo.setQuantity(quantity);
              }
+         }else {
+
          }
      }
 
@@ -77,13 +79,6 @@ public class CartInfo {
                  this.updateProduct(line.getProductInfo().getId(), line.getQuantity());
              }
          }
-        /*if (cartInfo != null){
-            cartInfo.cartLines.forEach(
-                    cartLine -> {
-                        this.updateProduct(cartLine.getProductInfo().getId(), cartLine.getQuantity());
-                    }
-            );
-        }*/
      }
 
     public Double getAmountTotal() {

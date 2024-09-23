@@ -19,4 +19,8 @@ public interface ProductRepository extends BaseRepository<Product, Integer> {
                          Pageable pageable);
 
     Product findByCode(String code);
+
+    @Query("SELECT p.quantity FROM Product p WHERE p.id = :id")
+    Integer findQuantityById(@Param("id") int id);
+
 }

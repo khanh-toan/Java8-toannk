@@ -1,6 +1,7 @@
 package org.shopping.service;
 
 import lombok.RequiredArgsConstructor;
+import org.shopping.common.ConflictException;
 import org.shopping.common.RecordNotfoundException;
 import org.shopping.entity.Order;
 import org.shopping.entity.OrderDetails;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,6 +30,7 @@ public class OrderService {
     private final OrderDetailRepository orderDetailRepository;
     private final AccountService accountService;
 
+    @Transactional
     public void addOrder(CartInfo cartInfo) {
         Integer maxOrderNum = orderRepository.maxOrderNum();
         int orderNum = (maxOrderNum == null) ? 1 : maxOrderNum + 1;
@@ -50,8 +53,13 @@ public class OrderService {
         orderRepository.save(order);
 
         List<CartLineInfo> lines = cartInfo.getCartLines();
-
         for (CartLineInfo line : lines) {
+            Integer quantity = productRepository.findQuantityById(line.getProductInfo().getId());
+            if (quantity <= 0){
+                throw new ConflictException("Quantity of " + line.getProductInfo().getCode() + " is(are) out of stock");
+            }else if (quantity < line.getQuantity()){
+                throw new ConflictException("Quantity of " + line.getProductInfo().getCode() + " is only " + quantity);
+            }
             OrderDetails detail = new OrderDetails();
             detail.setOrder(order);
             detail.setAmount(line.getAmount());
@@ -60,6 +68,8 @@ public class OrderService {
             int id = line.getProductInfo().getId();
             Optional<Product> productOpt = productRepository.findById(id);
             Product product = productOpt.get();
+            product.setQuantity(product.getQuantity() - line.getQuantity());
+            productRepository.save(product);
             detail.setProduct(product);
             orderDetailRepository.save(detail);
         }

@@ -3,9 +3,14 @@ package org.shopping.service;
 import lombok.RequiredArgsConstructor;
 import org.shopping.common.ConflictException;
 import org.shopping.common.NameAlreadyExistsException;
+import org.shopping.common.RecordNotfoundException;
 import org.shopping.entity.Account;
 import org.shopping.entity.Product;
+import org.shopping.form.ProductForm;
+import org.shopping.form.ReviewDTO;
+import org.shopping.repository.OrderRepository;
 import org.shopping.repository.ProductRepository;
+import org.shopping.repository.ReviewRepository;
 import org.shopping.utils.ConvertUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,13 +18,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ReviewRepository reviewRepository;
+    private final OrderRepository orderRepository;
 
     public Page<Product> getProducts(String likeName, Boolean active, int currentPage, int size) {
         Pageable pageable = PageRequest.of(currentPage - 1, size);
@@ -67,5 +76,19 @@ public class ProductService {
             throw new NameAlreadyExistsException("Code");
         }
         productRepository.save(createProduct);
+    }
+
+    public ProductForm getProductDetails(Integer productId, Integer userId) {
+        ProductForm productForm;
+        Optional<Product> product = productRepository.findById(productId);
+        if (product.isEmpty()){
+            throw new RecordNotfoundException("Product" + productId);
+        }
+        // Kiểm tra xem người dùng có mua sản phẩm này hay chưa
+        boolean hasPurchased = orderRepository.existsByUserIdAndProductId(userId, productId);
+
+        List<ReviewDTO> reviewDTOList = reviewRepository.findReviewsByProductId(productId);
+        productForm = new ProductForm(product.get(), reviewDTOList, hasPurchased);
+        return productForm;
     }
 }

@@ -9,6 +9,9 @@
 <th:block th:insert="~{/_header}"></th:block>
 <th:block th:insert="~{/_menu}"></th:block>
 <div class="page-title">Confirmation</div>
+<div th:if="${error}" style="font-weight: bold; color: red">
+    <p th:text="${error}" class="error-message"></p>
+</div>
 <div class="customer-info-container">
     <h3>Customer Information:</h3>
     <ul>

@@ -13,8 +13,11 @@
     <h2>There is no items in Cart</h2>
     <a th:href="@{/productList}">Show Product List</a>
 </th:block>
+<div th:if="${error}" style="font-weight: bold; color: red">
+    <p th:text="${error}" class="error-message"></p>
+</div>
 <th:block th:if="${cartForm.cartLines != null && !cartForm.cartLines.isEmpty()}">
-    <form method="POST" th:object="${cartForm}" th:action="@{/shoppingCart}">
+    <form method="POST" th:object="${cartForm}" th:action="@{/shoppingCart}"  onsubmit="return validateQuantity();">
         <div class="product-preview-container"
              th:each="cartLineInfo, varStatus : ${cartForm.cartLines}">
             <ul>
@@ -51,8 +54,7 @@
                     </span>
                 </li>
                 <li>
-                    <a th:href="@{|/shoppingCartRemoveProduct?id=${cartLineInfo.productInfo.id
-                    }|}">
+                    <a th:href="@{|/shoppingCartRemoveProduct?id=${cartLineInfo.productInfo.id}|}">
                         Delete
                     </a>
                 </li>
@@ -67,5 +69,19 @@
     </form>
 </th:block>
 <th:block th:insert="~{/_footer}"></th:block>
+<script>
+    function validateQuantity() {
+        const quantities = document.querySelectorAll('input[type="number"]'); // Lấy tất cả các input số lượng
+        for (const quantity of quantities) {
+            const quantityValue = parseInt(quantity.value); // Lấy giá trị của trường số lượng
+            if (quantityValue <= 0) {
+                alert('Quantity of some products is invalid. It must be greater than 0.');
+                return false; // Ngăn không cho submit form
+            }
+        }
+        return true; // Tiếp tục submit nếu hợp lệ
+    }
+</script>
+
 </body>
 </html>

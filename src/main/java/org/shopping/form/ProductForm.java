@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class ProductForm {
@@ -18,12 +19,15 @@ public class ProductForm {
     private boolean isDelete;
     private boolean newProduct = false;
     private byte[] image;
+    private List<ReviewDTO> reviewDTOS;
+    private boolean hasPurchased;
     // Upload file.
     private MultipartFile fileData;
 
     public ProductForm() {
         this.newProduct= true;
     }
+
 
     public ProductForm(Product product) {
         this.id = product.getId();
@@ -33,6 +37,18 @@ public class ProductForm {
         this.description = product.getDescription();
         this.image = product.getImage();
         this.isDelete = product.getIsDeleted();
+    }
+
+    public ProductForm(Product product, List<ReviewDTO> reviewDTOs, boolean hasPurchased) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.code = product.getCode();
+        this.price = product.getPrice();
+        this.description = product.getDescription();
+        this.image = product.getImage();
+        this.isDelete = product.getIsDeleted();
+        this.reviewDTOS = reviewDTOs; // Lấy danh sách đánh giá từ bên ngoài
+        this.hasPurchased = hasPurchased;
     }
 
     public Product getProduct( ) throws IOException {

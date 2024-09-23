@@ -23,7 +23,6 @@ public class ConvertUtils {
         for (Object object : sourceList) {
             outList.add(convert(object, dstClass));
         }
-
         return outList;
     }
 }

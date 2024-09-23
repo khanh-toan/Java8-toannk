@@ -22,4 +22,8 @@ public interface OrderRepository extends BaseRepository<Order, Integer>{
                        @Param("active") Boolean active,
                        Pageable pageable);
 
+    @Query("select case when count(*) > 0 then true else false end " +
+            "from Order o join OrderDetails od on o.id = od.order.id " +
+            "where o.userId = :userId and od.product.id = :productId and o.status = 'DELIVERED'")
+    boolean existsByUserIdAndProductId(@Param("userId") Integer userId, @Param("productId") Integer productId);
 }

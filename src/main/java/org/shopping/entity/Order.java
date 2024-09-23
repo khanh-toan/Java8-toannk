@@ -21,34 +21,27 @@ uniqueConstraints = { @UniqueConstraint(columnNames = "ORDER_NUM")})
 public class Order extends BaseEntity implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
     @Column(name = "CUSTOMER_ADDRESS")
     private String address;
-
     @Column(name = "CUSTOMER_EMAIL")
     private String email;
-
     @Column(name = "CUSTOMER_NAME")
     private String name;
-
     @Column(name = "CUSTOMER_PHONE")
     private String phone;
-
     @Column(name = "AMOUNT")
     private Double amount;
-
     @Column(name = "ORDER_NUM")
     private Integer orderNum;
-
     @Column(name = "Order_Date", nullable = false)
     private Date orderDate;
-
     @Column(name = "IS_DELETED")
     private Boolean isDeleted;
-
     @Column(name = "user_id")
     private Integer userId;
-
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderDetails> orderDetailsList;
+    @Column(name = "STATUS")
+    private String status; // Trạng thái của đơn hàng (Chưa xác nhận, Đã xác nhận, Đã giao, Đã nhận)
+
 }

@@ -25,10 +25,14 @@ public class Product extends BaseEntity{
     private Double price;
     @Column(name = "Description")
     private String description;
+    @Column(name = "quantity")
+    private Integer quantity;
     @Column(name = "Image", length = Integer.MAX_VALUE, nullable = true)
     private byte[] image;
     @Column(name = "Is_delete")
     private Boolean isDeleted;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderDetails> orderDetailsList;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Review> reviews;
 }

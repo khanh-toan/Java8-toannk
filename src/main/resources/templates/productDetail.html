@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Detail</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/styles.css}">
+    <style>
+        html {
+             background: #f0f0f5; /* Màu nền nhẹ nhàng */
+        }
+        body {
+            max-width: 860px !important;
+            min-width: 360px !important;
+            margin: 0px auto !important;
+            background: #ffffff !important;
+            padding: 20px 15px !important;
+            font-family: Arial, sans-serif !important;
+            color: #333333 !important;
+            text-align: center !important;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1) !important;
+            border-radius: 10px !important;
+        }
+
+        .header-container .header-bar a {
+            color: white;
+            font-weight: bold;
+        }
+
+        .menu-container a {
+            margin: 5px 10px;
+            color: #00509e; /* Tạo màu link đồng bộ */
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .menu-container a:hover {
+            color: #ff6600; /* Hiệu ứng hover cho link */
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 10px 0;
+        }
+
+        li {
+            font-size: 16px;
+            padding: 5px 0;
+        }
+
+        #updateModal h2 {
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        #updateModal form {
+            text-align: left;
+        }
+
+        #updateModal form label {
+            font-weight: bold;
+            color: #333333;
+        }
+
+        #updateModal form input[type="text"] {
+            width: calc(100% - 10px);
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        #updateModal button {
+            background-color: #00509e;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #updateModal button:hover {
+            background-color: #ff6600;
+        }
+        /* CSS đã có ở trên */
+
+        .pagination li {
+            display: inline;
+            margin: 0 5px;
+        }
+
+        .pagination li a {
+            color: #00509e;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .pagination li a:hover {
+            background-color: #ff6600;
+            color: white;
+        }
+
+        .pagination .active a {
+            background-color: #00509e;
+            color: white;
+        }
+        .product-preview-container img {
+            display: block;
+            margin: 0 auto 10px;
+        }
+
+        ul {
+            padding-left: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+    <!-- Thêm Bootstrap để hỗ trợ CSS và responsive -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<!-- Header -->
+<th:block th:insert="~{/_header}"></th:block>
+<th:block th:insert="~{/_menu}"></th:block>
+
+<!-- Container chính cho thông tin sản phẩm và đánh giá -->
+<div class="container mt-5">
+    <div class="row">
+        <!-- Phần hiển thị thông tin sản phẩm -->
+        <div class="col-md-6">
+            <h2 th:text="${productForm.name}">Product Name</h2>
+            <p>Code: <span th:text="${productForm.code}"></span></p>
+            <p>Price: $<span th:text="${#numbers.formatDecimal(productForm.price, 3, 2, 'COMMA')}"></span></p>
+            <p>Description: <span th:text="${productForm.description}"></span></p>
+            <img th:src="@{|/productImage?id=${productForm.id}|}" style="width: 250px; height: 200px;"
+                 alt="Product Image" class="img-fluid">
+        </div>
+
+        <!-- Phần hiển thị đánh giá sản phẩm -->
+        <div class="col-md-6">
+            <h3>Product Reviews</h3>
+
+            <!-- Kiểm tra nếu không có đánh giá -->
+            <div th:if="${productForm.reviewDTOS.isEmpty()}">
+                <p>No reviews for this product yet.</p>
+            </div>
+
+            <!-- Hiển thị danh sách đánh giá -->
+            <div th:each="review : ${productForm.reviewDTOS}">
+                <div class="review-item mb-4">
+                    <p><strong>User:</strong> <span th:text="${review.userName}"></span></p>
+
+                    <!-- Hiển thị rating bằng sao (★ cho số sao, ☆ cho sao trống) -->
+                    <p>Rating:
+                        <span th:each="i : ${#numbers.sequence(1, review.rating)}">
+                                &#9733; <!-- HTML cho sao đầy (★) -->
+                            </span>
+                        <span th:each="i : ${#numbers.sequence(review.rating + 1, 5)}">
+                                &#9734; <!-- HTML cho sao trống (☆) -->
+                            </span>
+                    </p>
+                    <p><strong>Comment:</strong> <span th:text="${review.comment}"></span></p>
+                    <p><strong>Date:</strong> <span th:text="${#dates.format(review.createdAt, 'dd/MM/yyyy')}"></span></p>
+                </div>
+                <hr>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form thêm đánh giá -->
+    <div th:if="${productForm.hasPurchased}">
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <h3>Add Your Review</h3>
+                <form th:action="@{/addReview}" method="POST" class="mt-3">
+                    <input type="hidden" name="productId" th:value="${productForm.id}">
+                    <input type="hidden" name="userId" th:value="${userId}"> <!-- Giả sử userId được lưu trong session -->
+
+                    <div class="form-group">
+                        <label for="rating">Rating:</label>
+                        <select class="form-control" id="rating" name="rating" required>
+                            <option value="5">5 stars</option>
+                            <option value="4">4 stars</option>
+                            <option value="3">3 stars</option>
+                            <option value="2">2 stars</option>
+                            <option value="1">1 star</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comment">Comment:</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="4" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<th:block th:insert="~{/_footer}"></th:block>
+
+<!-- Thêm Bootstrap JS và jQuery nếu cần -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

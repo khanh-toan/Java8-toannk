@@ -7,7 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.shopping.entity.Account;
 import org.shopping.entity.Order;
 import org.shopping.entity.Product;
+import org.shopping.entity.Review;
 import org.shopping.form.CustomerForm;
+import org.shopping.form.ProductForm;
+import org.shopping.form.ReviewDTO;
 import org.shopping.model.CartInfo;
 import org.shopping.model.CustomerInfo;
 import org.shopping.model.OrderInfo;
@@ -15,9 +18,12 @@ import org.shopping.model.ProductInfo;
 import org.shopping.service.AccountService;
 import org.shopping.service.OrderService;
 import org.shopping.service.ProductService;
+import org.shopping.service.ReviewService;
 import org.shopping.utils.CartsUtils;
 import org.shopping.utils.ConvertUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -27,6 +33,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +42,8 @@ import java.util.Optional;
 public class MainController {
     private final ProductService productService;
     private final OrderService orderService;
+    private final AccountService accountService;
+    private final ReviewService reviewService;
 
     @GetMapping("/productList")
     public String listUserHandler(Model model,
@@ -109,9 +118,15 @@ public class MainController {
     @PostMapping(value = { "/shoppingCart"})
     public String shoppingCartHandler(HttpServletRequest request, Model model, @ModelAttribute("cartForm") CartInfo cartInfo) {
         CartInfo myCart = CartsUtils.getCartInSession(request);
-        myCart.updateQuantity(cartInfo);
-        model.addAttribute("cartForm", myCart);
-        return "redirect:/shoppingCart";
+        try {
+            myCart.updateQuantity(cartInfo);
+            model.addAttribute("cartForm", myCart);
+            return "redirect:/shoppingCart";
+        }catch (Exception e){
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("cartForm", myCart);
+            return "shoppingCart";
+        }
     }
 
     @GetMapping(value = {"/shoppingCartCustomer"})
@@ -168,6 +183,7 @@ public class MainController {
             orderService.addOrder(cartInfo);
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
+            model.addAttribute("myCart", cartInfo);
             return "shoppingCartConfirmation";
         }
         // Xóa giỏ hàng khỏi session.
@@ -192,6 +208,35 @@ public class MainController {
         OrderInfo orderInfo = orderService.findOrderDetailById(orderId);
         model.addAttribute("orderInfo", orderInfo);
         return "order";
+    }
+
+    @GetMapping("/productDetail")
+    public String productDetail(@RequestParam("id") Integer productId, Model model) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Account account = accountService.findByUserName(userDetails.getUsername());
+        ProductForm productForm = productService.getProductDetails(productId, account.getId());
+        model.addAttribute("productForm", productForm);
+        model.addAttribute("userId", account.getId());
+        return "productDetail";  // Tên trang HTML cho chi tiết sản phẩm
+    }
+
+    @PostMapping("/addReview")
+    public String addReview(@RequestParam("productId") Integer productId,
+                            @RequestParam("userId") Integer userId,
+                            @RequestParam("rating") Integer rating,
+                            @RequestParam("comment") String comment,
+                            RedirectAttributes redirectAttributes) {
+        ReviewDTO reviewDTO = new ReviewDTO();
+        reviewDTO.setProductId(productId);
+        reviewDTO.setUserId(userId);
+        reviewDTO.setRating(rating);
+        reviewDTO.setComment(comment);
+        reviewDTO.setCreatedAt(new Date());
+        reviewService.saveReview(reviewDTO);
+        // Thêm thông báo thành công
+        redirectAttributes.addFlashAttribute("successMessage", "Your review has been submitted successfully!");
+        // Redirect về trang chi tiết sản phẩm
+        return "redirect:/productDetail?id=" + productId;
     }
 
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serial;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Builder
@@ -33,4 +34,7 @@ public class Account extends BaseEntity{
     private byte[] image;
     @Column(name = "IS_DELETED")
     private Boolean isDeleted;
+    // Quan hệ với bảng Review
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Review> reviews;
 }

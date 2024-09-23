@@ -276,6 +276,7 @@
             </li>
             <li>Code: <span th:utext="${prodInfo.code}"></span></li>
             <li>Name: <span th:utext="${prodInfo.name}"></span></li>
+            <li>Quantity: <span th:utext="${prodInfo.quantity}"></span></li>
             <li>Status: <span th:utext="${prodInfo.isDeleted}"></span></li>
             <li>Price: <span th:utext="${#numbers.formatDecimal(prodInfo.price, 3, 2, 'COMMA')}"></span></li>
             <li th:if="${prodInfo.isDeleted == true}">
