@@ -40,6 +40,7 @@ public class Order extends BaseEntity implements Serializable {
     @Column(name = "user_id")
     private Integer userId;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ToString.Exclude
     private List<OrderDetails> orderDetailsList;
     @Column(name = "STATUS")
     private String status; // Trạng thái của đơn hàng (Chưa xác nhận, Đã xác nhận, Đã giao, Đã nhận)

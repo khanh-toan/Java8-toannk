@@ -187,10 +187,18 @@ public class AdminController {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Account account = accountService.findByUserName(userDetails.getUsername());
 
-        Page<Order> orderPage = orderService.getOrders(likeName, currentPage, size, account.getId(), account.getIsDeleted());
+        Page<Order> orderPage;
+        if(account.getRole().equals("ROLE_MANAGER")){
+            orderPage = orderService.getOrders(likeName, currentPage, size, null, account.getIsDeleted());
+            model.addAttribute("isManager", true);
+            model.addAttribute("isCustomer", false);
+        }else {
+            orderPage = orderService.getOrders(likeName, currentPage, size, account.getId(), account.getIsDeleted());
+            model.addAttribute("isManager", false);
+            model.addAttribute("isCustomer", true);
+        }
 
-        List<Order> list = new ArrayList<>();
-        list = ConvertUtils.convertList(orderPage.getContent(), Order.class);
+        List<Order> list = ConvertUtils.convertList(orderPage.getContent(), Order.class);
 
         model.addAttribute("paginationPages", list);
         model.addAttribute("searchName", likeName);
@@ -198,6 +206,16 @@ public class AdminController {
         model.addAttribute("totalPages", orderPage.getTotalPages()); // Thêm tổng số trang
         model.addAttribute("totalItems", orderPage.getTotalElements()); // Thêm tổng số sản phẩm
         return "orderList";
+    }
+
+    @PostMapping("/admin/updateOrderStatus")
+    public String updateOrderStatus(@RequestParam("orderId") Integer orderId,
+                                    @RequestParam("status") String status) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Account account = accountService.findByUserName(userDetails.getUsername());
+
+        orderService.updateOrderStatus(orderId, status, account);
+        return "redirect:/orderList";
     }
 
     @GetMapping(value = { "/admin/productManagement" })

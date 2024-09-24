@@ -32,7 +32,9 @@ public class Product extends BaseEntity{
     @Column(name = "Is_delete")
     private Boolean isDeleted;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ToString.Exclude
     private List<OrderDetails> orderDetailsList;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Review> reviews;
 }

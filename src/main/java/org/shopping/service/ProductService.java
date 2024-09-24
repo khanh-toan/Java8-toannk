@@ -29,6 +29,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
     private final OrderRepository orderRepository;
+    private final ReviewService reviewService;
 
     public Page<Product> getProducts(String likeName, Boolean active, int currentPage, int size) {
         Pageable pageable = PageRequest.of(currentPage - 1, size);
@@ -78,7 +79,7 @@ public class ProductService {
         productRepository.save(createProduct);
     }
 
-    public ProductForm getProductDetails(Integer productId, Integer userId) {
+    public ProductForm getProductDetails(Integer productId, Integer userId, Integer currentPage, Integer size) {
         ProductForm productForm;
         Optional<Product> product = productRepository.findById(productId);
         if (product.isEmpty()){
@@ -87,8 +88,11 @@ public class ProductService {
         // Kiểm tra xem người dùng có mua sản phẩm này hay chưa
         boolean hasPurchased = orderRepository.existsByUserIdAndProductId(userId, productId);
 
-        List<ReviewDTO> reviewDTOList = reviewRepository.findReviewsByProductId(productId);
-        productForm = new ProductForm(product.get(), reviewDTOList, hasPurchased);
+        // Lấy danh sách review với phân trang
+        Page<ReviewDTO> reviewPage = reviewService.getPagedReviewsByProductId(productId, currentPage, size);
+
+        //List<ReviewDTO> reviewDTOList = reviewRepository.findReviewsByProductId(productId);
+        productForm = new ProductForm(product.get(), reviewPage.getContent(), hasPurchased);
         return productForm;
     }
 }

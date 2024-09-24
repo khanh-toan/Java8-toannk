@@ -9,6 +9,9 @@ import org.shopping.form.ReviewDTO;
 import org.shopping.repository.AccountRepository;
 import org.shopping.repository.ProductRepository;
 import org.shopping.repository.ReviewRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,5 +36,10 @@ public class ReviewService {
         review.setComment(reviewDTO.getComment());
         review.setCreatedAt(reviewDTO.getCreatedAt());  // Thêm thời gian tạo đánh giá
         reviewRepository.save(review);
+    }
+
+    public Page<ReviewDTO> getPagedReviewsByProductId(Integer productId, int currentPage, int size) {
+        Pageable pageable = PageRequest.of(currentPage - 1, size);
+        return reviewRepository.findReviewsByProductId(productId, pageable);
     }
 }

@@ -211,12 +211,21 @@ public class MainController {
     }
 
     @GetMapping("/productDetail")
-    public String productDetail(@RequestParam("id") Integer productId, Model model) {
+    public String productDetail(@RequestParam("id") Integer productId, Model model,
+                                @RequestParam(value = "page", required = false, defaultValue = "1") int currentPage,
+                                @RequestParam(value = "size", required = false, defaultValue = "4") int size) {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Account account = accountService.findByUserName(userDetails.getUsername());
-        ProductForm productForm = productService.getProductDetails(productId, account.getId());
+        ProductForm productForm = productService.getProductDetails(productId, account.getId(), currentPage, size);
+
+        Page<ReviewDTO> reviewPage = reviewService.getPagedReviewsByProductId(productId, currentPage, size);
+
         model.addAttribute("productForm", productForm);
         model.addAttribute("userId", account.getId());
+        model.addAttribute("reviewPage", reviewPage);  // Thêm đối tượng reviewPage vào model để dùng trong HTML
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", reviewPage.getTotalPages());
+
         return "productDetail";  // Tên trang HTML cho chi tiết sản phẩm
     }
 

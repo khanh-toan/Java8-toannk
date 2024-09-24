@@ -2,6 +2,8 @@ package org.shopping.repository;
 
 import org.shopping.entity.Review;
 import org.shopping.form.ReviewDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +15,6 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
     @Query("SELECT new org.shopping.form.ReviewDTO(r.rating, r.comment, r.createdAt, a.username) " +
             "FROM Review r JOIN r.user a JOIN r.product p WHERE p.id = :productId")
-    List<ReviewDTO> findReviewsByProductId(@Param("productId") Integer productId);
+    Page<ReviewDTO> findReviewsByProductId(@Param("productId") Integer productId, Pageable pageable);
 
 }

@@ -36,5 +36,6 @@ public class Account extends BaseEntity{
     private Boolean isDeleted;
     // Quan hệ với bảng Review
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ToString.Exclude
     private List<Review> reviews;
 }

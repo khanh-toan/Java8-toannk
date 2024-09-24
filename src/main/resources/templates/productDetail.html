@@ -123,6 +123,19 @@
         li {
             margin-bottom: 5px;
         }
+        .star-rating .star {
+            font-size: 24px; /* Kích thước của sao */
+            color: #ddd; /* Màu mặc định cho sao trống */
+        }
+
+        .star-rating .full {
+            color: #FFD700; /* Màu vàng cho sao đầy */
+        }
+
+        .star-rating .empty {
+            color: #ddd; /* Màu xám cho sao trống */
+        }
+
     </style>
     <!-- Thêm Bootstrap để hỗ trợ CSS và responsive -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -143,6 +156,8 @@
             <p>Description: <span th:text="${productForm.description}"></span></p>
             <img th:src="@{|/productImage?id=${productForm.id}|}" style="width: 250px; height: 200px;"
                  alt="Product Image" class="img-fluid">
+            <hr>
+            <a th:href="@{|/buyProduct?id=${productForm.id}|}" class="btn btn-primary btn-lg">Buy Now</a>
         </div>
 
         <!-- Phần hiển thị đánh giá sản phẩm -->
@@ -161,17 +176,38 @@
 
                     <!-- Hiển thị rating bằng sao (★ cho số sao, ☆ cho sao trống) -->
                     <p>Rating:
-                        <span th:each="i : ${#numbers.sequence(1, review.rating)}">
-                                &#9733; <!-- HTML cho sao đầy (★) -->
+                        <span class="star-rating">
+                            <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                <span th:if="${i <= review.rating}" class="star full">&#9733;</span> <!-- Sao đầy (★) -->
+                                <span th:if="${i > review.rating}" class="star empty">&#9733;</span> <!-- Sao trống (☆) -->
                             </span>
-                        <span th:each="i : ${#numbers.sequence(review.rating + 1, 5)}">
-                                &#9734; <!-- HTML cho sao trống (☆) -->
-                            </span>
+                        </span>
                     </p>
                     <p><strong>Comment:</strong> <span th:text="${review.comment}"></span></p>
                     <p><strong>Date:</strong> <span th:text="${#dates.format(review.createdAt, 'dd/MM/yyyy')}"></span></p>
                 </div>
                 <hr>
+            </div>
+            <div th:if="${reviewPage.totalElements != 0}">
+                <!-- Phân trang -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/productDetail(id=${productForm.id}, page=${currentPage - 1}, size=${size})}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li th:each="pageNum : ${#numbers.sequence(1, totalPages)}" class="page-item" th:classappend="${currentPage == pageNum} ? 'active'">
+                            <a class="page-link" th:href="@{/productDetail(id=${productForm.id}, page=${pageNum}, size=${size})}"
+                               th:text="${pageNum}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/productDetail(id=${productForm.id}, page=${currentPage + 1}, size=${size})}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>

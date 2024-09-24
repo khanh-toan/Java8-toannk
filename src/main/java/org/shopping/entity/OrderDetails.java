@@ -31,10 +31,12 @@ public class OrderDetails extends BaseEntity{
     private Boolean isDeleted;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "PRODUCT_ID", referencedColumnName = "ID")
     private Product product;
 
     @ManyToOne
+    @ToString.Exclude
     @JoinColumn(name = "ORDER_ID", referencedColumnName = "ID")
     private Order order;
 }

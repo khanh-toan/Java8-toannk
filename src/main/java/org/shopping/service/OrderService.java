@@ -3,6 +3,7 @@ package org.shopping.service;
 import lombok.RequiredArgsConstructor;
 import org.shopping.common.ConflictException;
 import org.shopping.common.RecordNotfoundException;
+import org.shopping.entity.Account;
 import org.shopping.entity.Order;
 import org.shopping.entity.OrderDetails;
 import org.shopping.entity.Product;
@@ -11,6 +12,7 @@ import org.shopping.repository.AccountRepository;
 import org.shopping.repository.OrderDetailRepository;
 import org.shopping.repository.OrderRepository;
 import org.shopping.repository.ProductRepository;
+import org.shopping.utils.Constants;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +48,7 @@ public class OrderService {
         order.setPhone(customerInfo.getPhone());
         order.setAddress(customerInfo.getAddress());
         order.setIsDeleted(true);
+        order.setStatus(Constants.StatusOrder.ORDER_PENDING_CONFIRMATION);
         order.setUserId(accountService.findIdByUserDetail());
 
         System.out.println("OrderNum : "+order.getOrderNum());
@@ -106,5 +109,30 @@ public class OrderService {
             orderDetailInfos.add(orderDetailInfo);
         }
         return orderDetailInfos;
+    }
+
+    public void updateOrderStatus(Integer orderId, String status, Account account) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RecordNotfoundException("Order"));
+
+        // Nếu người dùng là khách hàng, chỉ cho phép cập nhật thành DELIVERED khi trạng thái là SHIPPED
+        if (account.getRole().equals("ROLE_EMPLOYEE")) {
+            if (order.getStatus().equals(Constants.StatusOrder.ORDER_SHIPPED) && status.equals(Constants.StatusOrder.ORDER_DELIVERED)) {
+                order.setStatus(Constants.StatusOrder.ORDER_DELIVERED);
+            } else {
+                throw new ConflictException("Only 'Delivered' status can be updated by customer.");
+            }
+        }
+
+        if (account.getRole().equals("ROLE_MANAGER")) {
+            if (order.getStatus().equals(Constants.StatusOrder.ORDER_PENDING_CONFIRMATION) && status.equals(Constants.StatusOrder.ORDER_CONFIRMED)) {
+                order.setStatus(Constants.StatusOrder.ORDER_CONFIRMED);
+            } else if (order.getStatus().equals(Constants.StatusOrder.ORDER_CONFIRMED) && status.equals(Constants.StatusOrder.ORDER_SHIPPED)) {
+                order.setStatus(Constants.StatusOrder.ORDER_SHIPPED);
+            } else {
+                throw new ConflictException("Invalid status update for manager.");
+            }
+        }
+        orderRepository.save(order);
     }
 }
