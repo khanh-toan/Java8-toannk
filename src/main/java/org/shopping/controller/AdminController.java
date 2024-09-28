@@ -62,9 +62,25 @@ public class AdminController {
         }
     }
 
-    @RequestMapping(value = { "/admin/login" }, method = RequestMethod.GET)
+    /*@RequestMapping(value = { "/admin/login" }, method = RequestMethod.GET)
     public String login(Model model) {
         System.out.println("test login!!!!!!!!!");
+        return "login";
+    }*/
+
+    @RequestMapping(value = {"/admin/login"}, method = RequestMethod.GET)
+    public String login(Model model, @RequestParam(value = "error", required = false) String error) {
+        try {
+            if (error != null) {
+                model.addAttribute("errorMessage",
+                        "Sai tài khoản hoặc mật khẩu.");
+            }
+        }catch (Exception e){
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            String message = rootCause.getMessage();
+            model.addAttribute("errorMessage", message);
+            return "login";
+        }
         return "login";
     }
 

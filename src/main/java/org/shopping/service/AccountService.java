@@ -41,7 +41,9 @@ public class AccountService {
             accountFromDb.setUsername(account.getUsername());
             accountFromDb.setAddress(account.getAddress());
             accountFromDb.setDescription(account.getDescription());
-            accountFromDb.setImage(account.getImage());
+            if (account.getImage().length != 0){
+                accountFromDb.setImage(account.getImage());
+            }
             accountFromDb.setUpdatedAt(new Date());
             accountRepository.save(accountFromDb);
         }

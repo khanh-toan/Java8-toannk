@@ -1,6 +1,7 @@
 package org.shopping.service;
 
 import lombok.RequiredArgsConstructor;
+import org.shopping.common.ConflictException;
 import org.shopping.entity.Account;
 import org.shopping.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         if (account == null) {
             throw new UsernameNotFoundException(userName);
+        }else if (!account.getIsDeleted()){
+            throw new ConflictException("Account is denied");
         }
 
         // EMPLOYEE,MANAGER,..
